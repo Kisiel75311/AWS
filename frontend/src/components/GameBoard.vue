@@ -70,9 +70,6 @@ export default {
   created() {
     this.resetGame();
   },
-  render_board() {
-
-  },
 };
 </script>
 
