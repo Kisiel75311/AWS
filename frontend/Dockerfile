@@ -6,11 +6,11 @@ FROM node:14
 WORKDIR /app
 
 # Skopiuj plik 'package.json' i zainstaluj zależności
-COPY frontend/package*.json ./
+COPY package*.json ./
 RUN npm install
 
 # Skopiuj resztę kodu do kontenera
-COPY frontend/ .
+COPY . .
 
 # Zbuduj aplikację
 RUN npm run build
