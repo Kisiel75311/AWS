@@ -4,6 +4,7 @@
     <h1>{{ message }}</h1>
     <h2>Aktualny gracz: {{ currentPlayer }}</h2>
     <button @click="startGame">Start New Game</button>
+    <button @click="resetGame">Reset Game</button>
     <div class="board">
       <div v-for="(row, rowIndex) in boardState" :key="rowIndex">
         <button v-for="(cell, colIndex) in row" :key="colIndex"
