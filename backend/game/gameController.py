@@ -2,7 +2,8 @@
 
 from .board import Board
 from .player import Player
-from api.models import db, Game
+from api.models import Game
+from extensions import db
 
 class GameController:
     def __init__(self):

@@ -3,7 +3,7 @@
 from flask import Blueprint, request, jsonify
 from game.gameController import GameController
 
-game_blueprint = Blueprint('game', __name__)
+game_blueprint = Blueprint('api', __name__)
 game_controller = GameController()
 
 @game_blueprint.route('/start', methods=['GET'])

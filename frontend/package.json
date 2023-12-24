@@ -5,7 +5,8 @@
   "scripts": {
     "serve": "vue-cli-service serve",
     "build": "vue-cli-service build",
-    "lint": "vue-cli-service lint"
+    "lint": "vue-cli-service lint",
+    "dev": "vue-cli-service serve"
   },
   "dependencies": {
     "axios": "^1.6.2",
@@ -40,5 +41,12 @@
     "last 2 versions",
     "not dead",
     "not ie 11"
-  ]
+  ],
+  "proxyTable": {
+    "/api": {
+      "target": "http://localhost:5000",
+      "changeOrigin": true,
+      "pathRewrite": { "^/api": "" }
+    }
+  }
 }

@@ -4,7 +4,7 @@ version: '3.8'
 services:
   flaskapp-node:
     build: ./backend
-    hostname: flaskApp-node
+    hostname: aws-flaskApp-node
     ports:
       - "8082:8080"
     networks:
@@ -13,7 +13,7 @@ services:
 
   bunapp-node:
     build: ./frontend
-    hostname: vueApp-node
+    hostname: aws-vueApp-node
     ports:
       - "8083:8080"
     networks:

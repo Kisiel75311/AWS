@@ -1,8 +1,8 @@
 #backend/api/models.py
 
 from flask_sqlalchemy import SQLAlchemy
+from extensions import db
 
-db = SQLAlchemy()
 
 class Game(db.Model):
     id = db.Column(db.Integer, primary_key=True)
