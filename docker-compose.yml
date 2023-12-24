@@ -1,0 +1,27 @@
+#docker-compose.yml
+version: '3.8'
+
+services:
+  flaskapp-node:
+    build: ./backend
+    hostname: flaskApp-node
+    ports:
+      - "8082:8080"
+    networks:
+      app_network:
+        ipv4_address: 10.0.0.2
+
+  bunapp-node:
+    build: ./frontend
+    hostname: vueApp-node
+    ports:
+      - "8083:8080"
+    networks:
+      app_network:
+        ipv4_address: 10.0.0.3
+
+networks:
+  app_network:
+    ipam:
+      config:
+        - subnet: 10.0.0.0/24
