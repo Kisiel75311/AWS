@@ -1,4 +1,4 @@
-<!--frontend/src/app.vue-->
+
 <template>
   <div id="app">
     <Game />
@@ -15,3 +15,4 @@ export default {
   },
 };
 </script>
+

@@ -18,4 +18,4 @@ RUN npm run build
 RUN npm install -g http-server
 
 # Uruchom serwer HTTP do obsługi statycznych plików
-CMD [ "http-server", "dist" ]
+CMD [ "http-server", "dist" , "--host 0.0.0.0"]

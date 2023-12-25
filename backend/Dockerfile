@@ -14,8 +14,9 @@ COPY . .
 # Ustaw zmienną środowiskową wskazującą na port, na którym uruchomiona jest usługa
 ENV FLASK_RUN_HOST=0.0.0.0
 ENV FLASK_RUN_PORT=8080
+ENV FLASK_ENV=development
 
 RUN pytest
 
 # Uruchom aplikację
-CMD ["flask", "run"]
+CMD ["flask", "run", "--debug"]

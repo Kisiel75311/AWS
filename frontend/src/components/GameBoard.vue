@@ -5,7 +5,7 @@
     <h2>Aktualny gracz: {{ currentPlayer }}</h2>
     <button @click="startGame">Start New Game</button>
     <button @click="resetGame">Reset Game</button>
-    <button >TESTOWY GUZIK</button>
+    <button>TESTOWY GUZIK aaaaaaaaaaaaaaaa</button>
     <div class="board">
       <div v-for="(row, rowIndex) in boardState" :key="rowIndex">
         <button v-for="(cell, colIndex) in row" :key="colIndex"
@@ -33,7 +33,7 @@ export default {
   },
   methods: {
     startGame() {
-      axios.get("http://10.0.1.2:8080/api/start", {
+      axios.get("/api/start", {
         headers: {
           "Content-Type": "application/json"
         }
@@ -51,7 +51,7 @@ export default {
     },
     makeMove(row, col) {
       const moveData = {row, col, gameId: this.gameId};
-      axios.post("http://10.0.1.2:8080/api/move", moveData, {
+      axios.post("/api/move", moveData, {
         headers: {
           "Content-Type": "application/json"
         }
@@ -66,7 +66,7 @@ export default {
           });
     },
     resetGame() {
-      axios.get(`http://10.0.1.2:8080/api/reset?gameId=${this.gameId}`, {
+      axios.get(`/api/reset?gameId=${this.gameId}`, {
         headers: {
           "Content-Type": "application/json"
         }

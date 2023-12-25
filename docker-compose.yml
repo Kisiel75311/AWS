@@ -17,6 +17,7 @@ services:
       - "8083:8080"
     volumes:
       - ./frontend:/app
+      - /app/node_modules
     networks:
       app_network:
         ipv4_address: 10.0.1.3

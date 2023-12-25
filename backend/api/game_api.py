@@ -14,7 +14,7 @@ def after_request(response):
 
 
 @game_blueprint.route('/start', methods=['GET'])
-@cross_origin(supports_credentials=True)
+# @cross_origin(supports_credentials=True)
 def start_game():
     game_id, board_state, current_player = game_controller.create_new_game()
     if game_id is None:
@@ -29,7 +29,7 @@ def start_game():
 
 
 @game_blueprint.route('/move', methods=['POST'])
-@cross_origin(supports_credentials=True)
+# @cross_origin(supports_credentials=True)
 def make_move():
     data = request.get_json()
     row = data.get('row')
@@ -51,7 +51,7 @@ def make_move():
 
 
 @game_blueprint.route('/reset', methods=['GET'])
-@cross_origin(supports_credentials=True)
+# @cross_origin(supports_credentials=True)
 def reset_game():
     game_id = request.args.get('gameId')
 
