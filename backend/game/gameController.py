@@ -1,45 +1,64 @@
-# gameController.py
+# backend/game/gameController.py
+from .TicTacToe import TicTacToe
+from api.models import Game, db
 
-from .board import Board
-from .player import Player
-from api.models import Game
-from extensions import db
 
 class GameController:
     def __init__(self):
-        self.board = Board()
-        self.players = [Player('X'), Player('O')]
-        self.current_player_index = 0
-        self.game_record = None
+        self.games = {}
 
-    def start_new_game(self):
-        self.board.reset_board()
-        self.current_player_index = 0
-        self.game_record = Game(board_state=self.board.get_board_state(), current_player='X')
-        db.session.add(self.game_record)
+    def create_new_game(self):
+        new_game = TicTacToe()
+        game_record = Game(board_state=new_game.get_board_state(), current_player='X', winner=None, game_over=False)
+        db.session.add(game_record)
         db.session.commit()
+        self.games[game_record.id] = new_game
+        return game_record.id, new_game.get_board_as_2d_array(), new_game.current_player
 
-    def play_move(self, row, col):
-        player = self.players[self.current_player_index]
-        if self.board.make_move(row, col, player):
-            self.update_game_record()
-            winner = self.board.check_winner()
-            if winner or self.board.is_full():
-                return "Game Over: Winner is " + winner if winner else "Game Over: It's a Draw"
-            self.current_player_index = (self.current_player_index + 1) % 2
-            return "Move accepted"
-        return "Invalid move"
+    def play_move(self, game_id, row, col):
+        game_record = Game.query.get(game_id)
+        if not game_record or game_record.game_over:
+            return "Nie można grać w zakończoną grę.", None, None
 
-    def update_game_record(self):
-        if self.game_record:
-            self.game_record.board_state = self.board.get_board_state()
-            self.game_record.current_player = self.players[self.current_player_index].symbol
-            db.session.commit()
+        game = self.games.get(game_id)
+        if not game:
+            return "Gra nie została znaleziona.", None, None
 
-    def reset_game(self):
-        self.board.reset_board()
-        self.current_player_index = 0
-        self.update_game_record()
+        if not game.make_move(row, col):
+            return "Nieprawidłowy ruch.", None, None
 
-    def get_current_player(self):
-        return self.players[self.current_player_index]
+        winner = game.check_winner()
+        game_record.board_state = game.get_board_state()
+        game_record.current_player = game.current_player
+
+        game_over = False
+        if winner:
+            game_over = True
+            game_record.game_over = True
+            game_record.winner = winner
+        elif game.is_full():
+            game_over = True
+            game_record.game_over = True
+            game_record.winner = "Draw"
+
+        db.session.commit()
+        return ("Ruch wykonany pomyślnie.", game.get_board_as_2d_array(), game.current_player) if not game_over else \
+            ("Gra zakończona: " + winner, game.get_board_as_2d_array(), game.current_player)
+
+    def reset_game(self, game_id):
+        game_record = Game.query.get(game_id)
+        if not game_record:
+            return "Gra nie została znaleziona.", None, None
+
+        game = self.games.get(game_id)
+        if not game:
+            return "Gra nie została znaleziona.", None, None
+
+        game.reset_board()
+        game_record.board_state = game.get_board_state()
+        game_record.current_player = game.current_player
+        game_record.game_over = False
+        game_record.winner = None
+
+        db.session.commit()
+        return "Gra została zresetowana.", game.get_board_as_2d_array(), 'X'

@@ -9,12 +9,12 @@
       <div v-for="(row, rowIndex) in boardState" :key="rowIndex">
         <button v-for="(cell, colIndex) in row" :key="colIndex"
                 @click="makeMove(rowIndex, colIndex)"
-                :disabled="cell !== ''">
+                :disabled="cell !== ''"
+                class="cell">
           {{ cell }}
         </button>
       </div>
     </div>
-    <button @click="resetGame">Reset Game</button>
   </div>
 </template>
 
@@ -26,29 +26,38 @@ export default {
     return {
       boardState: [],
       currentPlayer: "",
+      gameId: null,
       message: "",
     };
   },
   methods: {
     startGame() {
-      axios.get("http://localhost:5000/api/start")
+      axios.get("http://localhost:5000/api/start", {
+        headers: {
+          "Content-Type": "application/json"
+        }
+      })
           .then((res) => {
-            console.log("Start Game Response:", res.data);  // Logowanie odpowiedzi
-            this.boardState = res.data.state;
-            this.currentPlayer = res.data.current_player;
+            this.boardState = res.data.boardState;
+            this.currentPlayer = res.data.currentPlayer;
+            this.gameId = res.data.gameId;
             this.message = res.data.message;
+            this.$forceUpdate();
           })
           .catch((err) => {
             console.error(err);
           });
     },
     makeMove(row, col) {
-      const moveData = {row, col};
-      axios.post("http://localhost:5000/api/move", moveData)
+      const moveData = {row, col, gameId: this.gameId};
+      axios.post("http://localhost:5000/api/move", moveData, {
+        headers: {
+          "Content-Type": "application/json"
+        }
+      })
           .then((res) => {
-            console.log("Make Move Response:", res.data);  // Logowanie odpowiedzi
-            this.boardState = res.data.state;
-            this.currentPlayer = res.data.current_player;
+            this.boardState = res.data.boardState;
+            this.currentPlayer = res.data.currentPlayer;
             this.message = res.data.message;
           })
           .catch((err) => {
@@ -56,11 +65,14 @@ export default {
           });
     },
     resetGame() {
-      axios.get("http://localhost:5000/api/reset")
+      axios.get(`http://localhost:5000/api/reset?gameId=${this.gameId}`, {
+        headers: {
+          "Content-Type": "application/json"
+        }
+      })
           .then((res) => {
-            console.log("Reset Game Response:", res.data);  // Logowanie odpowiedzi
-            this.boardState = res.data.state;
-            this.currentPlayer = res.data.current_player;
+            this.boardState = res.data.boardState;
+            this.currentPlayer = res.data.currentPlayer;
             this.message = res.data.message;
           })
           .catch((err) => {
@@ -69,13 +81,13 @@ export default {
     },
   },
   created() {
-    this.resetGame();
+    this.startGame();
   },
 };
 </script>
 
-
 <style>
+/* Styl dla komponentu gry */
 .board {
   display: grid;
   grid-template-columns: repeat(3, 1fr);
@@ -84,6 +96,7 @@ export default {
   max-width: 300px;
   margin: auto;
 }
+
 .cell {
   width: 100px;
   height: 100px;
