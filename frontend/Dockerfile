@@ -1,22 +1,21 @@
-FROM node:lts-alpine
+# Użyj obrazu Node.js
+FROM node:14
 
-# install simple http server for serving static content
-RUN npm install -g http-server
-
-# make the 'app' folder the current working directory
+# Ustaw katalog roboczy w kontenerze
 WORKDIR /app
 
-# copy both 'package.json' and 'package-lock.json' (if available)
+# Skopiuj plik 'package.json' i zainstaluj zależności
 COPY package*.json ./
-
-# install project dependencies
 RUN npm install
 
-# copy project files and folders to the current working directory (i.e. 'app' folder)
+# Skopiuj resztę kodu do kontenera
 COPY . .
 
-# build app for production with minification
+# Zbuduj aplikację
 RUN npm run build
 
-EXPOSE 8080
+# Zainstaluj serwer HTTP do obsługi statycznych plików
+RUN npm install -g http-server
+
+# Uruchom serwer HTTP do obsługi statycznych plików
 CMD [ "http-server", "dist" ]
