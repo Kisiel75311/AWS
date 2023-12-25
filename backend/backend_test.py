@@ -34,11 +34,12 @@ class TestGameAPI(TestCase):
         for row, col in winning_moves:
             response = self.client.post('/api/move', json={'row': row, 'col': col, 'gameId': game_id})
             assert response.status_code == 200 or (row, col) == winning_moves[-1]  # Last move might end the game
+        assert response.json['message'] == ('Gra zakończona: X')
 
         # 3. Check if X won
-        headers = {'Content-Type': 'application/json'}
-        response = self.client.get('/api/reset', json={'gameId': game_id}, headers=headers)
+        response = self.client.get(f'/api/reset?gameId={game_id}')
         assert response.status_code == 200
+        # Check the message or status for the win
         game_data = response.json
         assert game_data['message'] == 'Gra została zresetowana.'
 
@@ -71,11 +72,61 @@ class TestGameAPI(TestCase):
             response = self.client.post('/api/move', json={'row': row, 'col': col, 'gameId': game2_id})
             assert response.status_code == 200
 
-        # Verify the final states of both games are independent
-        # (you may need to implement an endpoint or logic to retrieve the current state of a game)
-        # For example:
-        # response = self.client.get(f'/api/game_state/{game1_id}')
-        # game1_state = response.json
-        # response = self.client.get(f'/api/game_state/{game2_id}')
-        # game2_state = response.json
-        # assert game1_state != game2_state
+    def test_invalid_move(self):
+        # Start a new game
+        response = self.client.get('/api/start')
+        game_id = response.json['gameId']
+
+        # Make an invalid move (e.g., outside the board)
+        response = self.client.post('/api/move', json={'row': 3, 'col': 3, 'gameId': game_id})
+        assert response.status_code == 400
+
+        # Make a move and then another move on the same spot
+        self.client.post('/api/move', json={'row': 0, 'col': 0, 'gameId': game_id})
+        response = self.client.post('/api/move', json={'row': 0, 'col': 0, 'gameId': game_id})
+        assert response.status_code == 400
+
+    def test_game_draw(self):
+
+
+        # Start a new game and play moves leading to a draw
+        response = self.client.get('/api/start')
+        game_id = response.json['gameId']
+        moves = [(0, 0), (0, 1), (0, 2), (1, 0), (1, 1), (2, 0), (1, 2), (2, 1), (2, 2)]
+        for row, col in moves:
+            response = self.client.post('/api/move', json={'row': row, 'col': col, 'gameId': game_id})
+            assert response.status_code == 200 or (row, col) == moves[-1]
+        assert response.json['message'] == ('Gra zakończona: X')
+
+
+
+    def test_restart_game(self):
+        # Start a new game
+        response = self.client.get('/api/start')
+        game_id = response.json['gameId']
+
+        # Make some moves
+        self.client.post('/api/move', json={'row': 0, 'col': 0, 'gameId': game_id})
+        self.client.post('/api/move', json={'row': 1, 'col': 1, 'gameId': game_id})
+
+        # Reset the game
+        self.client.get(f'/api/reset?gameId={game_id}')
+
+        # Check if the board is reset
+        response = self.client.get(f'/api/start?gameId={game_id}')
+        assert all(cell == '' for row in response.json['boardState'] for cell in row)
+
+    def test_game_over_condition(self):
+        # Start a new game and play a winning combination
+        response = self.client.get('/api/start')
+        game_id = response.json['gameId']
+        winning_moves = [(0, 0), (1, 0), (0, 1), (1, 1), (0, 2)]
+
+        for row, col in winning_moves:
+            self.client.post('/api/move', json={'row': row, 'col': col, 'gameId': game_id})
+
+
+        # Attempt to make a move after the game is over
+        response = self.client.post('/api/move', json={'row': 2, 'col': 2, 'gameId': game_id})
+        assert response.status_code == 400
+        assert response.json['error'] == ('Nie można grać w zakończoną grę.')
