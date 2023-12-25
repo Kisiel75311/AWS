@@ -1,59 +1,72 @@
-from flask import Blueprint, request, jsonify, session
+from flask import Blueprint, request, jsonify
 from game.gameController import GameController
+from flask_cors import cross_origin
 
 game_blueprint = Blueprint('api', __name__)
-game_controller = GameController()  # Tworzenie pojedynczego kontrolera gry
+game_controller = GameController()
+
+
+@game_blueprint.after_request
+def after_request(response):
+    response.headers.add('Access-Control-Allow-Headers',
+                         "Origin, X-Requested-With, Content-Type, Accept, x-auth")
+    return response
+
 
 @game_blueprint.route('/start', methods=['GET'])
+@cross_origin(supports_credentials=True)
 def start_game():
     game_id, board_state, current_player = game_controller.create_new_game()
-
-    # Sprawdzenie, czy game_id zostało poprawnie utworzone
     if game_id is None:
-        return jsonify({'error': 'Nie udało się utworzyć nowej gry.'}), 500
+        return jsonify({'error': 'Failed to create a new game.'}), 500
 
-    session['game_id'] = game_id
-    session.modified = True
     return jsonify({
         'boardState': board_state,
         'currentPlayer': current_player,
-        'message': 'Nowa gra rozpoczęta.',
+        'message': 'New game started.',
         'gameId': game_id
     })
 
 
 @game_blueprint.route('/move', methods=['POST'])
+@cross_origin(supports_credentials=True)
 def make_move():
-    session_string = str(session.get('game_id'))
+    data = request.get_json()
+    row = data.get('row')
+    col = data.get('col')
+    game_id = data.get('gameId')
 
-    if "game_id" in session:
-        game_id = session.get('game_id')
-        data = request.get_json()
-        row = data.get('row')
-        col = data.get('col')
+    if not isinstance(row, int) or not isinstance(col, int) or not isinstance(game_id, int):
+        return jsonify({'error': 'Invalid input.'}), 400
 
-        result, board_state, current_player = game_controller.play_move(game_id, row, col)
-        if not board_state:
-            return jsonify({'error': result}), 400  # Błąd, np. nieprawidłowy ruch
+    result, board_state, current_player = game_controller.play_move(game_id, row, col)
+    if not board_state:
+        return jsonify({'error': result}), 400
 
-        return jsonify({
-            'boardState': board_state,
-            'currentPlayer': current_player,
-            'message': result,
-        })
-    else:
-        return jsonify({'error': 'Gra nie została jeszcze rozpoczęta. session.get: ' + session_string}), 400
+    return jsonify({
+        'boardState': board_state,
+        'currentPlayer': current_player,
+        'message': result,
+    })
 
 
 @game_blueprint.route('/reset', methods=['GET'])
+@cross_origin(supports_credentials=True)
 def reset_game():
-    game_id = session.get('game_id')
-    if not game_id:
-        return jsonify({'error': 'Gra nie została jeszcze rozpoczęta.'}), 400
+    game_id = request.args.get('gameId')
+
+    if game_id is None:
+        return jsonify({'error': 'Game ID is required.'}), 400
+
+    try:
+        game_id = int(game_id)
+    except ValueError:
+        return jsonify({'error': 'Invalid Game ID.'}), 400
 
     result, board_state, current_player = game_controller.reset_game(game_id)
     if not board_state:
-        return jsonify({'error': result}), 400  # Błąd, np. gra nie została znaleziona
+        return jsonify({'error': result}), 400
+
     return jsonify({
         'boardState': board_state,
         'currentPlayer': current_player,

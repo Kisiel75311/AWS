@@ -16,7 +16,7 @@ class GameController:
         return game_record.id, new_game.get_board_as_2d_array(), new_game.current_player
 
     def play_move(self, game_id, row, col):
-        game_record = Game.query.get(game_id)
+        game_record = db.session.get(Game, game_id)
         if not game_record or game_record.game_over:
             return "Nie można grać w zakończoną grę.", None, None
 
@@ -46,7 +46,7 @@ class GameController:
             ("Gra zakończona: " + winner, game.get_board_as_2d_array(), game.current_player)
 
     def reset_game(self, game_id):
-        game_record = Game.query.get(game_id)
+        game_record = db.session.get(Game, game_id)
         if not game_record:
             return "Gra nie została znaleziona.", None, None
 
