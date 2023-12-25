@@ -1,21 +1,15 @@
-# Użyj obrazu Node.js
-FROM node:14
+FROM node:alpine
 
-# Ustaw katalog roboczy w kontenerze
 WORKDIR /app
 
-# Skopiuj plik 'package.json' i zainstaluj zależności
 COPY package*.json ./
-RUN npm install
 
-# Skopiuj resztę kodu do kontenera
+RUN npm ci \
+ && rm -rf node_modules \
+ && rm package-lock.json
+
 COPY . .
 
-# Zbuduj aplikację
-RUN npm run build
+RUN npm i
 
-# Zainstaluj serwer HTTP do obsługi statycznych plików
-RUN npm install -g http-server
-
-# Uruchom serwer HTTP do obsługi statycznych plików
-CMD [ "http-server", "dist" ]
+CMD ["npm", "run", "dev"]
