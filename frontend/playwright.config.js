@@ -39,7 +39,7 @@ export default defineConfig({
     trace: 'on-first-retry',
 
     /* Only on CI systems run the tests headless */
-    headless: !!process.env.CI
+    headless: true
   },
 
   /* Configure projects for major browsers */
