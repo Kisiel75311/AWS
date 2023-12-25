@@ -2,7 +2,7 @@ const {test, expect} = require('@playwright/test');
 
 test.describe('GameBoard Component Tests', () => {
     test.beforeEach(async ({page}) => {
-        await page.goto('http://localhost:8080/'); // Adres URL Twojego projektu Vue.js
+        await page.goto('http://10.0.1.2:8080/'); // Adres URL Twojego projektu Vue.js
     });
 
     test('Should display initial game state', async ({page}) => {

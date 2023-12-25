@@ -15,5 +15,7 @@ COPY . .
 ENV FLASK_RUN_HOST=0.0.0.0
 ENV FLASK_RUN_PORT=8080
 
+RUN pytest
+
 # Uruchom aplikację
 CMD ["flask", "run"]

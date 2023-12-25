@@ -36,7 +36,11 @@ def create_app(testing=False):
     register_blueprints(app)
 
     # Set up CORS
-    CORS(app)
+    CORS(app, resources={
+        r"/api/*": {
+            "origins": ["http://10.0.1.3:8080", "http://localhost:8083"]
+        }
+    })
 
     # Define routes
     @app.route('/api')

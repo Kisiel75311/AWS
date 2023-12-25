@@ -1,4 +1,3 @@
-#frontend/Dockerfile
 # Użyj obrazu Node.js
 FROM node:14
 

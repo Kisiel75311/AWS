@@ -7,8 +7,7 @@
     "build": "vue-cli-service build",
     "lint": "vue-cli-service lint",
     "dev": "vue-cli-service serve",
-    "test": "playwright test",
-    "test:e2e": "playwright test --reporter @playwright/test-runner-allure && allure generate test_reports && allure open test_reports"
+    "test": "playwright test"
   },
   "dependencies": {
     "@sentry/vue": "^7.91.0",
@@ -50,7 +49,7 @@
   ],
   "proxyTable": {
     "/api": {
-      "target": "http://localhost:5000",
+      "target": "http://10.0.1.2:8080",
       "changeOrigin": true,
       "pathRewrite": {
         "^/api": ""
