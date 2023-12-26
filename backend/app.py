@@ -6,6 +6,8 @@ from models import db
 from config import Config
 from flask_jwt_extended import JWTManager
 from flask_migrate import Migrate
+from flask_swagger_ui import get_swaggerui_blueprint
+from error_hanlers import register_error_handlers
 
 def create_app(testing=False):
     # Initialize Sentry SDK
@@ -45,14 +47,26 @@ def create_app(testing=False):
     CORS(app)
     # CORS(app, resources={r"/api/*": {"origins": "*"}})  # Możesz ograniczyć do konkretnych źródeł zamiast używać "*"
     jwt = JWTManager(app)
+
+    # Register error handlers
+    register_error_handlers(app)
+
     # Define routes
     @app.route('/api')
     def index():
         return jsonify({"message": "Witaj w grze kółko i krzyżyk!"})
 
-    @app.errorhandler(404)
-    def page_not_found(e):
-        return jsonify({"message": "Nie znaleziono strony."}), 404
+    # Swagger configuration
+    SWAGGER_URL = '/api/docs'
+    API_URL = '/static/swagger.json'
+    swaggerui_blueprint = get_swaggerui_blueprint(
+        SWAGGER_URL,
+        API_URL,
+        config={
+            'app_name': "Game API"
+        }
+    )
+    app.register_blueprint(swaggerui_blueprint, url_prefix=SWAGGER_URL)
 
     return app
 

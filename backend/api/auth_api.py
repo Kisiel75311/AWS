@@ -1,4 +1,4 @@
-# backedn/api_api.py
+# backedn/auth_api.py
 from flask import Blueprint, request, jsonify, current_app
 from services.auth_service import AuthService
 from exceptions import UserNotFoundException, InvalidPasswordException, UserAlreadyExistsError
