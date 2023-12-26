@@ -1,22 +1,27 @@
-# Użyj oficjalnego obrazu Pythona jako obrazu bazowego
-FROM python:3.8
+# Use the official Python image as the base image
+FROM python:3.9.13
 
-# Ustaw katalog roboczy w kontenerze
+# Set the working directory in the container
 WORKDIR /app
 
-# Skopiuj plik wymagań i zainstaluj zależności
+# Copy the requirements file and install dependencies
 COPY requirements.txt ./
 RUN pip install --no-cache-dir -r requirements.txt
 
-# Skopiuj resztę kodu do kontenera
+# Copy the rest of your application's code to the container
 COPY . .
 
-# Ustaw zmienną środowiskową wskazującą na port, na którym uruchomiona jest usługa
+# Set environment variables
 ENV FLASK_RUN_HOST=0.0.0.0
 ENV FLASK_RUN_PORT=8080
 ENV FLASK_ENV=development
 
-RUN #pytest --alluredir=reports
+# Initialize database and run migrations
+# Note: This assumes that your application and database are configured to allow this
+RUN flask db upgrade
 
-# Uruchom aplikację
+# Run tests
+RUN pytest --alluredir=/app/reports
+
+# The command to run when the container starts
 CMD ["flask", "run", "--debug"]

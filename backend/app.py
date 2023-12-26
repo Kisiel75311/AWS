@@ -4,6 +4,7 @@ from flask import Flask, jsonify
 from flask_cors import CORS
 from models.game_model import db
 from config import Config
+from flask_jwt_extended import JWTManager
 
 def create_app(testing=False):
     # Initialize Sentry SDK
@@ -40,7 +41,7 @@ def create_app(testing=False):
     # Set up CORS
     CORS(app)
     # CORS(app, resources={r"/api/*": {"origins": "*"}})  # Możesz ograniczyć do konkretnych źródeł zamiast używać "*"
-
+    jwt = JWTManager(app)
     # Define routes
     @app.route('/api')
     def index():
@@ -57,7 +58,7 @@ def register_blueprints(app):
     from api.auth_api import auth_blueprint
 
     app.register_blueprint(game_blueprint, url_prefix='/api')
-    app.register_blueprint(auth_blueprint, url_prefix='/api')
+    app.register_blueprint(auth_blueprint, url_prefix='/auth')
 
 if __name__ == '__main__':
     app = create_app()

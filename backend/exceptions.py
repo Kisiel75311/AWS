@@ -20,3 +20,7 @@ class UserNotFoundException(BaseException):
 class InvalidPasswordException(BaseException):
     status_code = 401
     message = "Invalid password"
+
+class UserAlreadyExistsError(BaseException):
+    status_code = 409
+    message = "User already exists"

@@ -7,10 +7,10 @@ services:
       - "8082:8080"
     volumes:
       - ./backend:/app
+      - ./backend/reports:/app/reports
     networks:
       app_network:
         ipv4_address: 10.0.1.2
-    command: [ "pytest", "--alluredir=/app/reports" ]
 
   vueapp-node:
     build: ./frontend

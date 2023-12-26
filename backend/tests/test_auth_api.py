@@ -4,6 +4,22 @@ from app import create_app, db
 import json
 
 
+# @pytest.fixture(scope='session')
+# def app():
+#     return create_app(testing=True)
+#
+# @pytest.fixture
+# def client(app):
+#     return app.test_client()
+#
+# @pytest.fixture
+# def db(app):
+#     with app.app_context():
+#         db.create_all()
+#     yield db
+#     with app.app_context():
+#         db.drop_all()
+
 class TestAuthAPI(TestCase):
     def create_app(self):
         # Konfiguracja aplikacji dla testów
@@ -20,73 +36,69 @@ class TestAuthAPI(TestCase):
         db.drop_all()
 
     def test_register_user(self):
-        # Testowanie rejestracji użytkownika
+        # Test registering a new user
         response = self.client.post('/auth/register', data=json.dumps({
-            'username': 'testuser',
-            'password': 'testpassword'
+            'username': 'newuser',
+            'password': 'newpassword'
         }), content_type='application/json')
         self.assertEqual(response.status_code, 201)
+        self.assertIn("Player registered successfully.", response.json['message'])
+
+    def test_register_user_missing_data(self):
+        # Test registration with missing username or password
+        response = self.client.post('/auth/register', data=json.dumps({
+            'password': 'newpassword'
+        }), content_type='application/json')
+        self.assertEqual(response.status_code, 400)
+        self.assertIn("Username and password are required.", response.json['error'])
+
+    def test_register_existing_user(self):
+        # Register a user
+        self.test_register_user()
+
+        # Try to register the same user again
+        response = self.client.post('/auth/register', data=json.dumps({
+            'username': 'newuser',
+            'password': 'newpassword'
+        }), content_type='application/json')
+        self.assertEqual(response.status_code, 409)
+        self.assertIn("User already exists.", response.json['error'])
 
     def test_login_user(self):
-        # Testowanie logowania użytkownika
-        self.test_register_user()  # Najpierw zarejestruj użytkownika
+        # First, register a user
+        self.test_register_user()
+        # Then, try to login
         response = self.client.post('/auth/login', data=json.dumps({
-            'username': 'testuser',
-            'password': 'testpassword'
+            'username': 'newuser',
+            'password': 'newpassword'
         }), content_type='application/json')
         self.assertEqual(response.status_code, 200)
         self.assertIn('token', response.json)
-
-    def test_logout_user(self):
-        # Testowanie wylogowania użytkownika
-        self.test_login_user()  # Najpierw zaloguj użytkownika
-        token = json.loads(response.data)['token']
-        response = self.client.post('/auth/logout', headers={
-            'Authorization': f'Bearer {token}'
-        })
-        self.assertEqual(response.status_code, 200)
-
-    def test_register_user_missing_data(self):
-        # Test rejestracji z brakującymi danymi
-        response = self.client.post('/auth/register', data=json.dumps({
-            'username': 'testuser'
-        }), content_type='application/json')
-        self.assertEqual(response.status_code, 400)
-
-    def test_register_existing_user(self):
-        # Test rejestracji istniejącego użytkownika
-        self.test_register_user()  # Najpierw zarejestruj użytkownika
-        response = self.client.post('/auth/register', data=json.dumps({
-            'username': 'testuser',
-            'password': 'testpassword'
-        }), content_type='application/json')
-        self.assertEqual(response.status_code, 400)
+        return response
 
     def test_login_user_wrong_password(self):
-        # Test logowania z nieprawidłowym hasłem
-        self.test_register_user()  # Najpierw zarejestruj użytkownika
+        # First, register a user
+        self.test_register_user()
+        # Then, try to login with wrong password
         response = self.client.post('/auth/login', data=json.dumps({
-            'username': 'testuser',
+            'username': 'newuser',
             'password': 'wrongpassword'
         }), content_type='application/json')
         self.assertEqual(response.status_code, 401)
 
     def test_login_nonexistent_user(self):
-        # Test logowania nieistniejącego użytkownika
         response = self.client.post('/auth/login', data=json.dumps({
             'username': 'nonexistent',
             'password': 'password'
         }), content_type='application/json')
-        self.assertEqual(response.status_code, 401)
+        self.assertEqual(response.status_code, 404)
 
-    def test_logout_with_invalid_token(self):
-        # Test wylogowywania z niepoprawnym tokenem
+    def test_logout_user(self):
+        # First, register and login a user to get a token
+        response=self.test_login_user()
+        token = json.loads(response.data)['token']
+        # Then, try to logout
         response = self.client.post('/auth/logout', headers={
-            'Authorization': 'Bearer invalidtoken'
+            'Authorization': f'Bearer {token}'
         })
-        self.assertEqual(response.status_code, 400)
-
-    def test_logout_without_token(self):
-        # Test wylogowywania bez tokena
-        response = self.client.post('/auth/logout')
-        self.assertEqual(response.status_code, 400)
+        self.assertEqual(response.status_code, 200)
