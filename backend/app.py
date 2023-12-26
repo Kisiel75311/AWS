@@ -3,6 +3,7 @@ import sentry_sdk
 from flask import Flask, jsonify
 from flask_cors import CORS
 from models.game_model import db
+from config import Config
 
 def create_app(testing=False):
     # Initialize Sentry SDK
@@ -14,6 +15,7 @@ def create_app(testing=False):
 
     # Create a Flask instance
     app = Flask(__name__)
+    app.config.from_object(Config)
 
     # Configure the app for testing or production
     if testing:
@@ -52,7 +54,10 @@ def create_app(testing=False):
 
 def register_blueprints(app):
     from api.game_api import game_blueprint
+    from api.auth_api import auth_blueprint
+
     app.register_blueprint(game_blueprint, url_prefix='/api')
+    app.register_blueprint(auth_blueprint, url_prefix='/api')
 
 if __name__ == '__main__':
     app = create_app()

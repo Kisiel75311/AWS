@@ -1,4 +1,4 @@
-# backend/tests/backend_test.py
+# backend/tests/test_game_api.py
 
 import pytest
 from flask_testing import TestCase

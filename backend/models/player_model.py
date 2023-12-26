@@ -1,5 +1,5 @@
 # backend/models/player_model.py
-from  game_model import db
+from models.game_model import db
 
 class Player(db.Model):
     id = db.Column(db.Integer, primary_key=True)

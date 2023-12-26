@@ -16,7 +16,7 @@ ENV FLASK_RUN_HOST=0.0.0.0
 ENV FLASK_RUN_PORT=8080
 ENV FLASK_ENV=development
 
-RUN pytest
+RUN #pytest --alluredir=reports
 
 # Uruchom aplikację
 CMD ["flask", "run", "--debug"]
