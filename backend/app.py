@@ -2,7 +2,7 @@
 import sentry_sdk
 from flask import Flask, jsonify
 from flask_cors import CORS
-from api.models import db
+from models.game_model import db
 
 def create_app(testing=False):
     # Initialize Sentry SDK

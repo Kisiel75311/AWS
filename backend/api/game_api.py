@@ -1,10 +1,10 @@
+# backend/api/game_api.py
 from flask import Blueprint, request, jsonify
-from game.gameController import GameController
+from services.game_service import GameService
 from flask_cors import cross_origin
 
 game_blueprint = Blueprint('api', __name__)
-game_controller = GameController()
-
+game_service = GameService()
 
 @game_blueprint.after_request
 def after_request(response):
@@ -14,9 +14,8 @@ def after_request(response):
 
 
 @game_blueprint.route('/start', methods=['GET'])
-# @cross_origin(supports_credentials=True)
 def start_game():
-    game_id, board_state, current_player = game_controller.create_new_game()
+    game_id, board_state, current_player = game_service.create_new_game()
     if game_id is None:
         return jsonify({'error': 'Failed to create a new game.'}), 500
 
@@ -29,7 +28,6 @@ def start_game():
 
 
 @game_blueprint.route('/move', methods=['POST'])
-# @cross_origin(supports_credentials=True)
 def make_move():
     data = request.get_json()
     row = data.get('row')
@@ -39,7 +37,7 @@ def make_move():
     if not isinstance(row, int) or not isinstance(col, int) or not isinstance(game_id, int):
         return jsonify({'error': 'Invalid input.'}), 400
 
-    result, board_state, current_player = game_controller.play_move(game_id, row, col)
+    result, board_state, current_player = game_service.play_move(game_id, row, col)
     if not board_state:
         return jsonify({'error': result}), 400
 
@@ -51,7 +49,6 @@ def make_move():
 
 
 @game_blueprint.route('/reset', methods=['GET'])
-# @cross_origin(supports_credentials=True)
 def reset_game():
     game_id = request.args.get('gameId')
 
@@ -63,7 +60,7 @@ def reset_game():
     except ValueError:
         return jsonify({'error': 'Invalid Game ID.'}), 400
 
-    result, board_state, current_player = game_controller.reset_game(game_id)
+    result, board_state, current_player = game_service.reset_game(game_id)
     if not board_state:
         return jsonify({'error': result}), 400
 

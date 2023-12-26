@@ -1,4 +1,4 @@
-# backend/api/models.py
+# backend/api/game_model.py
 from flask_sqlalchemy import SQLAlchemy
 
 db = SQLAlchemy()
