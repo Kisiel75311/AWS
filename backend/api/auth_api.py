@@ -3,12 +3,15 @@ from flask import Blueprint, request, jsonify, current_app
 from services.auth_service import AuthService
 from exceptions import UserNotFoundException, InvalidPasswordException, UserAlreadyExistsError
 from flask_jwt_extended import jwt_required, get_jwt_identity
+from utils.common_utils import standard_response
+
 
 auth_blueprint = Blueprint('auth', __name__)
 auth_service = AuthService()
 
 
 @auth_blueprint.route('/register', methods=['POST'])
+# @standard_response
 def register():
     data = request.get_json()
     username = data.get('username')
@@ -25,6 +28,7 @@ def register():
 
 
 @auth_blueprint.route('/login', methods=['POST'])
+# @standard_response
 def login():
     data = request.get_json()
     username = data.get('username')
@@ -45,6 +49,7 @@ def login():
 
 @auth_blueprint.route('/logout', methods=['POST'])
 @jwt_required()
+# @standard_response
 def logout():
     # Flask-JWT-Extended does not support built-in logout or token invalidation.
     # You would need to implement a token denylist/revocation mechanism if needed.

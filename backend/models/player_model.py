@@ -1,6 +1,5 @@
 # backend/models/player_model.py
-from models.game_model import db
-
+from models import db
 class Player(db.Model):
     id = db.Column(db.Integer, primary_key=True)
     name = db.Column(db.String(255))

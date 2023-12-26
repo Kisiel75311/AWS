@@ -1,6 +1,7 @@
 # backend/game/gameController.py
 from .TicTacToe import TicTacToe
-from models.game_model import Game, db
+from models.game_model import Game
+from models import db
 from contextlib import contextmanager
 
 

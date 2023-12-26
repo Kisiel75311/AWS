@@ -16,9 +16,6 @@ ENV FLASK_RUN_HOST=0.0.0.0
 ENV FLASK_RUN_PORT=8080
 ENV FLASK_ENV=development
 
-# Initialize database and run migrations
-# Note: This assumes that your application and database are configured to allow this
-RUN flask db upgrade
 
 # Run tests
 RUN pytest --alluredir=/app/reports

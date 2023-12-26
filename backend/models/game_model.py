@@ -1,9 +1,5 @@
 # backend/api/game_model.py
-from flask_sqlalchemy import SQLAlchemy
-
-db = SQLAlchemy()
-
-
+from models import db
 class Game(db.Model):
     id = db.Column(db.Integer, primary_key=True)
     board_state = db.Column(db.String(255))

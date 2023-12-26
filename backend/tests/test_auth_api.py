@@ -1,24 +1,9 @@
 import pytest
 from flask_testing import TestCase
 from app import create_app, db
+from flask import make_response
 import json
 
-
-# @pytest.fixture(scope='session')
-# def app():
-#     return create_app(testing=True)
-#
-# @pytest.fixture
-# def client(app):
-#     return app.test_client()
-#
-# @pytest.fixture
-# def db(app):
-#     with app.app_context():
-#         db.create_all()
-#     yield db
-#     with app.app_context():
-#         db.drop_all()
 
 class TestAuthAPI(TestCase):
     def create_app(self):

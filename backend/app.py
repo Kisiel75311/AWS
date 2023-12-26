@@ -2,9 +2,10 @@
 import sentry_sdk
 from flask import Flask, jsonify
 from flask_cors import CORS
-from models.game_model import db
+from models import db
 from config import Config
 from flask_jwt_extended import JWTManager
+from flask_migrate import Migrate
 
 def create_app(testing=False):
     # Initialize Sentry SDK
@@ -31,6 +32,8 @@ def create_app(testing=False):
 
     app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False
     app.config['SESSION_TYPE'] = 'filesystem'
+
+    migrate = Migrate(app, db)
 
     # Initialize database
     db.init_app(app)
