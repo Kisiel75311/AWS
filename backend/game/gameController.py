@@ -8,59 +8,37 @@ from models.player_model import Player
 
 
 class GameController:
-    def __init__(self):
-        self.games = {}
 
     def get_game(self, game_id):
-        """ Pobierz grę z bazy danych lub stwórz nową instancję gry, jeśli nie istnieje. """
-        game_record = db.session.get(Game, game_id)
-            # db.session.get(Game, game_id)
-        if game_record and game_id not in self.games:
-            new_game = TicTacToe()
+        """Get game from the database and create a new game instance."""
+        game_record = db.session.query(Game).filter_by(id=game_id).first()
+        if game_record:
+            new_game = TicTacToe(game_id=game_id)
             new_game.set_board_state_from_string(game_record.board_state)
             new_game.current_player = game_record.current_player
-            self.games[game_id] = new_game
-        return self.games.get(game_id)
+            return new_game
+        return None
 
     def create_new_game(self, player_id):
-        # Odłącz gracza od obecnej gry, jeśli jest już przypisany
         player = db.session.get(Player, player_id)
-        if player.current_game_id:
-            current_game = Game.query.get(player.current_game_id)
-            if current_game.player1_id == player_id:
-                current_game.player1_id = None
-            elif current_game.player2_id == player_id:
-                current_game.player2_id = None
-            player.current_game_id = None
-            db.session.commit()
+        self._handle_player_game_change(player, None)  # Handle existing game if any
 
         new_game = TicTacToe()
         game_record = Game(board_state=new_game.get_board_state(), current_player='X', winner=None, game_over=False,
                            player1_id=player_id)
         db.session.add(game_record)
         db.session.commit()
-        new_game.id = game_record.id  # Przypisanie id do instancji gry
-        self.games[game_record.id] = new_game
+
         player.current_game_id = game_record.id
         db.session.commit()
+
         return game_record.id, new_game.get_board_as_2d_array(), new_game.current_player
 
-
     def player_join_game(self, game_id, player_id):
-        game = db.session.get(Game, game_id)
+        game = db.session.query(Game).filter_by(id=game_id).first()
         player = db.session.get(Player, player_id)
+        self._handle_player_game_change(player, game_id)  # Handle existing game if any
 
-        # Jeśli gracz jest już przypisany do innej gry, odłącz go
-        if player.current_game_id and player.current_game_id != game_id:
-            current_game = Game.query.get(player.current_game_id)
-            if current_game.player1_id == player_id:
-                current_game.player1_id = None
-            elif current_game.player2_id == player_id:
-                current_game.player2_id = None
-            player.current_game_id = None
-            db.session.commit()
-
-        # Dodaj gracza do nowej gry
         if not game.player1_id:
             game.player1_id = player_id
         elif not game.player2_id and game.player1_id != player_id:
@@ -73,26 +51,22 @@ class GameController:
 
         return "Player joined the game", game.board_state, game.current_player
 
-
     def play_move(self, game_id, row, col, player_id):
         game_record = db.session.get(Game, game_id)
         if not game_record or game_record.game_over:
-            return "Nie można grać w zakończoną grę.", None, None
+            return "Cannot play in a completed game.", None, None
 
-        # Sprawdź, czy gracz jest jednym z graczy przypisanych do tej gry
         if player_id not in [game_record.player1_id, game_record.player2_id]:
-            return f"Gracz nie jest uczestnikiem tej gry.{player_id, game_id}", None, None
-
-        game = self.games.get(game_id)
+            return f"Player is not a participant of this game: {player_id, game_id}", None, None
+        game = self.get_game(game_id)
         if not game:
-            return "Gra nie została znaleziona.", None, None
+            return "Game not found.", None, None
 
-        # Sprawdź, czy gracz ma prawo wykonać ruch
-        if game.current_player != 'X' and game.current_player != 'O':
-            return "Nieprawidłowa tura.", None, None
+        if game.current_player not in ['X', 'O']:
+            return "Invalid turn.", None, None
 
         if not game.make_move(row, col):
-            return "Nieprawidłowy ruch.", None, None
+            return "Invalid move.", None, None
 
         winner = game.check_winner()
         game_record.board_state = game.get_board_state()
@@ -109,22 +83,23 @@ class GameController:
             game_record.winner = "Draw"
 
         db.session.commit()
-        return ("Ruch wykonany pomyślnie.", game.get_board_as_2d_array(), game.current_player) if not game_over else \
-            ("Gra zakończona: " + winner, game.get_board_as_2d_array(), game.current_player)
 
+        if game_over:
+            return f"Game over: {winner}", game.get_board_as_2d_array(), game.current_player
+        else:
+            return "Move played successfully.", game.get_board_as_2d_array(), game.current_player
 
     def reset_game(self, game_id, player_id):
-        game_record = db.session.get(Game, game_id)
+        game_record = db.session.query(Game).filter_by(id=game_id).first()
         if not game_record:
-            return "Gra nie została znaleziona.", None, None
+            return "Game not found.", None, None
 
-        # Sprawdź, czy gracz jest jednym z graczy przypisanych do tej gry
         if player_id not in [game_record.player1_id, game_record.player2_id]:
-            return "Gracz nie jest uczestnikiem tej gry.", None, None
+            return "Player is not a participant of this game.", None, None
 
-        game = self.games.get(game_id)
+        game = self.get_game(game_id)
         if not game:
-            return "Gra nie została znaleziona.", None, None
+            return "Game not found.", None, None
 
         game.reset_board()
         game_record.board_state = game.get_board_state()
@@ -133,4 +108,15 @@ class GameController:
         game_record.winner = None
 
         db.session.commit()
-        return "Gra została zresetowana.", game.get_board_as_2d_array(), 'X'
+        return "Game reset.", game.get_board_as_2d_array(), 'X'
+
+    def _handle_player_game_change(self, player, game_id):
+        if player.current_game_id:
+            current_game = db.session.get(Game, player.current_game_id)
+            if current_game.player1_id == player.id:
+                current_game.player1_id = None
+            elif current_game.player2_id == player.id:
+                current_game.player2_id = None
+
+            player.current_game_id = None
+            db.session.commit()
