@@ -5,7 +5,6 @@ from exceptions import UserNotFoundException, InvalidPasswordException, UserAlre
 from flask_jwt_extended import jwt_required, get_jwt_identity
 from utils.common_utils import standard_response
 
-
 auth_blueprint = Blueprint('auth', __name__)
 auth_service = AuthService()
 
@@ -39,7 +38,8 @@ def login():
 
     try:
         token = auth_service.login(username, password)
-        return jsonify({"token": token}), 200
+        player_id = auth_service.get_player_id(username)  # Retrieve player's ID
+        return jsonify({"token": token, "id": player_id}), 200
 
     except InvalidPasswordException:
         return jsonify({"error": "Invalid password."}), 401

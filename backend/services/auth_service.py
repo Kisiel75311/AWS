@@ -79,3 +79,11 @@ class AuthService:
         """Logs out a user."""
         self.invalidate_token(token)
         return "Player logged out successfully."
+
+    def get_player_id(self, username: str) -> int:
+        """Retrieves the player's ID based on the username."""
+        player = Player.query.filter_by(name=username).first()
+        if player:
+            return player.id
+        else:
+            raise UserNotFoundException("User not found.")

@@ -116,6 +116,11 @@
     "/api/start": {
       "get": {
         "summary": "Start a new game",
+        "security": [
+          {
+            "Bearer": []
+          }
+        ],
         "responses": {
           "200": {
             "description": "Game started successfully",
@@ -254,7 +259,7 @@
         }
       }
     }
-},
+  },
   "components": {
     "securitySchemes": {
       "Bearer": {

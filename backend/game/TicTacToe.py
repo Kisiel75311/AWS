@@ -1,15 +1,23 @@
 # backend/game/TicTacToe.py
+from models import db
+from models.game_model import Game
+
 
 class TicTacToe:
-    def __init__(self):
+    def __init__(self, game_id=None, current_player=None):
+        self.id = game_id  # Identyfikator gry z bazy danych
         self.board = [['' for _ in range(3)] for _ in range(3)]
-        self.current_player = 'X'
-        self.game_state = 1
+        self.current_player = current_player or 'X'
 
     def make_move(self, row, col):
         if self.is_valid_move(row, col):
             self.board[row][col] = self.current_player
             self.switch_player()
+            # Aktualizacja stanu gry w bazie danych
+            game_record = Game.query.get(self.id)
+            game_record.board_state = self.get_board_state()
+            game_record.current_player = self.current_player
+            db.session.commit()
             return True
         return False
 
@@ -36,6 +44,13 @@ class TicTacToe:
     def reset_board(self):
         self.board = [['' for _ in range(3)] for _ in range(3)]
         self.current_player = 'X'
+        # Zaktualizuj stan gry w bazie danych
+        game_record = Game.query.get(self.id)
+        game_record.board_state = self.get_board_state()
+        game_record.current_player = self.current_player
+        game_record.game_over = False
+        game_record.winner = None
+        db.session.commit()
 
     def get_board_state(self):
         return ''.join(''.join(row) for row in self.board)
@@ -48,7 +63,6 @@ class TicTacToe:
             self.game_state = 0
         else:
             self.current_player = 'O' if self.current_player == 'X' else 'X'
-
 
     def get_board_as_2d_array(self):
         return self.board

@@ -9,7 +9,7 @@ from flask_migrate import Migrate
 from flask_swagger_ui import get_swaggerui_blueprint
 from error_hanlers import register_error_handlers
 
-def create_app(testing=False):
+def build_app(testing=False):
     # Initialize Sentry SDK
     sentry_sdk.init(
         dsn="https://4cf6f815ee706c7a7e35b359fa634b7f@o4506447864463360.ingest.sentry.io/4506447866822656",
@@ -78,7 +78,7 @@ def register_blueprints(app):
     app.register_blueprint(auth_blueprint, url_prefix='/auth')
 
 if __name__ == '__main__':
-    app = create_app()
+    app = build_app()
     with app.app_context():
         db.create_all()
     app.run(debug=True)
