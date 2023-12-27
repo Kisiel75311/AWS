@@ -258,6 +258,36 @@
           }
         }
       }
+    },
+    "/api/all_games": {
+      "get": {
+        "summary": "Get all games",
+        "responses": {
+          "200": {
+            "description": "List of all games retrieved successfully",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "games": {
+                      "type": "array",
+                      "items": {
+                        "type": "object",
+                        "properties": {
+                        }
+                      }
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Error occurred while retrieving games"
+          }
+        }
+      }
     }
   },
   "components": {
