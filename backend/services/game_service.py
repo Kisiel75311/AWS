@@ -48,3 +48,6 @@ class GameService:
         # Dodaj gracza do gry za pomocą GameController
         message, board, current_player = self.game_controller.player_join_game(game_id, player_id)
         return message, board, current_player
+
+    def get_all_games(self):
+        return Game.query.all()

@@ -4,10 +4,10 @@ from models.game_model import Game
 
 
 class TicTacToe:
-    def __init__(self, game_id=None, current_player=None):
+    def __init__(self, game_id=None):
         self.id = game_id  # Identyfikator gry z bazy danych
         self.board = [['' for _ in range(3)] for _ in range(3)]
-        self.current_player = current_player or 'X'
+        self.current_player = 'X'
 
     def make_move(self, row, col):
         if self.is_valid_move(row, col):

@@ -82,3 +82,13 @@ def reset_game():
         return jsonify({'error': 'Invalid Game ID.'}), 400
     except Exception as e:
         return jsonify({'error': str(e)}), 400
+
+@game_blueprint.route('/all_games', methods=['GET'])
+def get_all_games():
+    try:
+        games = game_service.get_all_games()
+        return jsonify({
+            'games': games
+        })
+    except Exception as e:
+        return jsonify({'error': str(e)}), 400
