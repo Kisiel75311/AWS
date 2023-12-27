@@ -44,14 +44,26 @@ def start_game():
 @game_blueprint.route('/move', methods=['POST'])
 @jwt_required()
 def make_move():
-    user_id = request.args.get('user_id')
-    game_id = request.args.get('gameId')
+    user_id = get_jwt_identity()  # Extracting user_id from the JWT token
     data = request.get_json()
+
+    # Extract game_id, row, and col from JSON body
+    game_id = data.get('gameId')
     row = data.get('row')
     col = data.get('col')
 
-    if not isinstance(row, int) or not isinstance(col, int) or not isinstance(game_id, int):
+    # Validate inputs
+    if not all([isinstance(game_id, int), isinstance(row, int), isinstance(col, int)]):
         return jsonify({'error': 'Invalid input.'}), 400
+
+    # Get the player
+    player = db.session.query(Player).filter_by(id=user_id).first()
+
+    if not player:
+        return jsonify({'error': 'Player not found.'}), 404
+
+    if player.current_game_id != game_id:
+        return jsonify({'error': 'Player is not part of the game.'}), 400
 
     try:
         result, board_state, current_player = game_service.play_move(game_id, row, col, user_id)
@@ -62,6 +74,7 @@ def make_move():
         })
     except Exception as e:
         return jsonify({'error': str(e)}), 400
+
 
 
 @game_blueprint.route('/reset', methods=['GET'])

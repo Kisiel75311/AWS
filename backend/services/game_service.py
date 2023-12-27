@@ -40,14 +40,23 @@ class GameService:
         return message, board, current_player
 
     def player_join_game(self, game_id, player_id):
-        # Sprawdź, czy gracz istnieje
-        player = db.session.get(Player, player_id)
-        if not player:
-            raise Exception("Player not found.")
+        game = db.session.get(Game, game_id)
+        if not game:
+            raise Exception("Game not found.")
 
-        # Dodaj gracza do gry za pomocą GameController
-        message, board, current_player = self.game_controller.player_join_game(game_id, player_id)
-        return message, board, current_player
+        # Check if the game is already full
+        if game.player1_id and game.player2_id:
+            raise Exception("Game is already full.")
+
+        if not game.player1_id:
+            game.player1_id = player_id
+        elif not game.player2_id:
+            game.player2_id = player_id
+
+        db.session.commit()
+
+        # Return game state, message, etc.
+        return "Player joined", game.board_state, game.current_player
 
     def get_all_games(self):
         return Game.query.all()

@@ -14,7 +14,7 @@ class TicTacToe:
             self.board[row][col] = self.current_player
             self.switch_player()
             # Aktualizacja stanu gry w bazie danych
-            game_record = Game.query.get(self.id)
+            game_record = db.session.get(Game, self.id)
             game_record.board_state = self.get_board_state()
             game_record.current_player = self.current_player
             db.session.commit()
@@ -45,7 +45,7 @@ class TicTacToe:
         self.board = [['' for _ in range(3)] for _ in range(3)]
         self.current_player = 'X'
         # Zaktualizuj stan gry w bazie danych
-        game_record = Game.query.get(self.id)
+        game_record = db.session.get(Game, self.id)
         game_record.board_state = self.get_board_state()
         game_record.current_player = self.current_player
         game_record.game_over = False
