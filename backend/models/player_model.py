@@ -20,3 +20,11 @@ class Player(db.Model):
 
     def __repr__(self):
         return '<Player %r>' % self.name
+
+    def to_dict(self):
+        return {
+            'id': self.id,
+            'name': self.name,
+            'elo_rating': self.elo_rating,
+            'current_game_id': self.current_game_id
+        }

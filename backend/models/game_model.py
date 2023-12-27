@@ -25,3 +25,14 @@ class Game(db.Model):
 
     def __repr__(self):
         return '<Game %r>' % self.id
+
+    def to_dict(self):
+        return {
+            'id': self.id,
+            'board_state': self.board_state,
+            'player1_id': self.player1_id,
+            'player2_id': self.player2_id,
+            'current_player': self.current_player,
+            'winner': self.winner,
+            'game_over': self.game_over
+        }

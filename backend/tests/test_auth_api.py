@@ -6,7 +6,7 @@ import json
 
 from models.player_model import Player
 
-
+@allure.feature('Authentication API')
 class TestAuthAPI(TestCase):
     def create_app(self):
         # Konfiguracja aplikacji dla testów
@@ -22,6 +22,8 @@ class TestAuthAPI(TestCase):
         db.session.remove()
         db.drop_all()
 
+    @allure.story('User registration')
+    @allure.title('Registering a new user')
     def test_register_user(self):
         # Test registering a new user
         response = self.client.post('/auth/register', data=json.dumps({

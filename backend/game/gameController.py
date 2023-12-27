@@ -5,6 +5,7 @@ from models import db
 from contextlib import contextmanager
 
 from models.player_model import Player
+from exceptions import GameError
 
 
 class GameController:
@@ -54,19 +55,19 @@ class GameController:
     def play_move(self, game_id, row, col, player_id):
         game_record = db.session.get(Game, game_id)
         if not game_record or game_record.game_over:
-            return "Cannot play in a completed game.", None, None
+            raise GameError("Cannot play in a completed game.", 400)
 
         if player_id not in [game_record.player1_id, game_record.player2_id]:
-            return f"Player is not a participant of this game: {player_id, game_id}", None, None
+            raise GameError(f"Player is not a participant of this game: {player_id, game_id}", 400)
         game = self.get_game(game_id)
         if not game:
-            return "Game not found.", None, None
+            raise GameError("Game not found.", 404)
 
         if game.current_player not in ['X', 'O']:
-            return "Invalid turn.", None, None
+            raise GameError("Invalid turn.", 400)
 
         if not game.make_move(row, col):
-            return "Invalid move.", None, None
+            raise GameError("Invalid move.", 400)
 
         winner = game.check_winner()
         game_record.board_state = game.get_board_state()

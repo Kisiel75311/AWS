@@ -9,6 +9,8 @@ from models import db
 
 from models.game_model import Game
 
+from exceptions import GameError
+
 game_blueprint = Blueprint('api', __name__)
 game_service = GameService()
 
@@ -72,9 +74,13 @@ def make_move():
             'currentPlayer': current_player,
             'message': result,
         })
+    except GameError as e:
+        # Obsługa wyjątku GameError
+        response = e.to_dict()
+        return jsonify(response), e.status_code
     except Exception as e:
-        return jsonify({'error': str(e)}), 400
-
+        # Obsługa innych wyjątków
+        return jsonify({'error': str(e)}), 500
 
 
 @game_blueprint.route('/reset', methods=['GET'])
@@ -124,7 +130,6 @@ def join_game():
         })
     except Exception as e:
         return jsonify({'error': str(e)}), 400
-
 
 
 @game_blueprint.route('/all_games', methods=['GET'])
