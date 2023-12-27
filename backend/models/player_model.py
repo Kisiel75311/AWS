@@ -11,7 +11,7 @@ class Player(db.Model):
 
     # Zaktualizowana definicja relacji z Game
     current_game = db.relationship('Game', foreign_keys=[current_game_id],
-                                   backref=db.backref('current_player', uselist=False), uselist=False)
+                                   backref=db.backref('current_player_game', uselist=False), uselist=False)
 
     def __init__(self, name, password):
         self.name = name

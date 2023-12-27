@@ -39,12 +39,14 @@ def test_game_flow(test_client, init_database):
     token1 = response_player1.json['token']
     response_player2 = register_and_login_user(test_client, 'player2', 'password2')
     token2 = response_player2.json['token']
+    assert token1 != token2
 
     # 2. player1 creates a new game
     start_response = test_client.get('/api/start', headers={'Authorization': f'Bearer {token1}'})
     assert start_response.status_code == 200
     game_data = start_response.json
     game_id = game_data['gameId']
+    assert game_id == 1
 
     # 3. player2 joins the game
     # Assuming you have an endpoint for player2 to join the game

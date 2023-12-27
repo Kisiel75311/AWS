@@ -5,6 +5,9 @@ from flask_cors import cross_origin
 from flask_jwt_extended import jwt_required, get_jwt_identity
 
 from models.player_model import Player
+from models import db
+
+from models.game_model import Game
 
 game_blueprint = Blueprint('api', __name__)
 game_service = GameService()
@@ -22,7 +25,7 @@ def start_game():
     user_id = get_jwt_identity()  # Extracting user_id from the JWT token
 
     # Check if user_id exists in the database
-    user = Player.query.get(user_id)
+    user = db.session.get(Player, user_id)
     if not user:
         return jsonify({'error': 'User not found.'}), 404
 
@@ -82,6 +85,34 @@ def reset_game():
         return jsonify({'error': 'Invalid Game ID.'}), 400
     except Exception as e:
         return jsonify({'error': str(e)}), 400
+
+
+@game_blueprint.route('/join', methods=['POST'])
+@jwt_required()
+def join_game():
+    user_id = get_jwt_identity()  # Extracting user_id from the JWT token
+    data = request.get_json()
+    game_id = data.get('gameId')
+
+    if not game_id:
+        return jsonify({'error': 'Game ID is required.'}), 400
+
+    # Check if the game exists
+    game = db.session.get(Game, game_id)
+    if not game:
+        return jsonify({'error': 'Game not found.'}), 404
+
+    try:
+        result, board_state, current_player = game_service.player_join_game(game_id, user_id)
+        return jsonify({
+            'boardState': board_state,
+            'currentPlayer': current_player,
+            'message': result
+        })
+    except Exception as e:
+        return jsonify({'error': str(e)}), 400
+
+
 
 @game_blueprint.route('/all_games', methods=['GET'])
 def get_all_games():

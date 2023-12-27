@@ -11,7 +11,7 @@ class GameService:
 
     def create_new_game(self, player_id):
         # Sprawdź, czy gracz istnieje
-        player = Player.query.get(player_id)
+        player = db.session.get(Player, player_id)
         if not player:
             raise Exception("Player not found.")
 
@@ -21,7 +21,7 @@ class GameService:
 
     def play_move(self, game_id, row, col, player_id):
         # Sprawdź, czy gracz istnieje i jest przypisany do gry
-        player = Player.query.get(player_id)
+        player = db.session.get(Player, player_id)
         if not player or player.current_game_id != game_id:
             raise Exception("Player not found or not part of the game.")
 
@@ -31,7 +31,7 @@ class GameService:
 
     def reset_game(self, game_id, player_id):
         # Sprawdź, czy gracz istnieje i jest przypisany do gry
-        player = Player.query.get(player_id)
+        player = db.session.get(Player, player_id)
         if not player or player.current_game_id != game_id:
             raise Exception("Player not found or not part of the game.")
 
@@ -41,7 +41,7 @@ class GameService:
 
     def player_join_game(self, game_id, player_id):
         # Sprawdź, czy gracz istnieje
-        player = Player.query.get(player_id)
+        player = db.session.get(Player, player_id)
         if not player:
             raise Exception("Player not found.")
 
