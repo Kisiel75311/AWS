@@ -61,7 +61,7 @@ class TestAuthAPI(TestCase):
         }), content_type='application/json')
         self.assertEqual(response.status_code, 200)
         self.assertIn('token', response.json)
-        return response
+        self._login_response = response
 
     def test_login_user_wrong_password(self):
         # First, register a user
@@ -83,7 +83,7 @@ class TestAuthAPI(TestCase):
     def test_logout_user(self):
         # First, register and login a user to get a token
         response = self.test_login_user()
-        token = json.loads(response.data)['token']
+        token = json.loads(self._login_response.data)['token']
         # Then, try to logout
         response = self.client.post('/auth/logout', headers={
             'Authorization': f'Bearer {token}'

@@ -81,7 +81,7 @@ class GameController:
 
         # Sprawdź, czy gracz jest jednym z graczy przypisanych do tej gry
         if player_id not in [game_record.player1_id, game_record.player2_id]:
-            return "Gracz nie jest uczestnikiem tej gry.", None, None
+            return f"Gracz nie jest uczestnikiem tej gry.{player_id, game_id}", None, None
 
         game = self.games.get(game_id)
         if not game:

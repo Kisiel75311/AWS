@@ -54,28 +54,13 @@ def test_game_flow(test_client, init_database):
     assert join_response.status_code == 200
 
     # 4. player1 and player2 make two moves each
-    move_response = test_client.post('/api/move',
-                                     json={'row': 1, 'col': 1, 'gameId': game_id},
-                                     headers={'Authorization': f'Bearer {token1}'})
-    assert move_response.status_code == 200
-    move_data = move_response.json
-    assert move_data['message'] in ['Ruch wykonany pomyślnie.', 'Nieprawidłowy ruch.']
-
-    move_response = test_client.post('/api/move',
-                                        json={'row': 0, 'col': 0, 'gameId': game_id},
-                                        headers={'Authorization': f'Bearer {token2}'})
-    assert move_response.status_code == 200
-    move_data = move_response.json
-    assert move_data['message'] in ['Ruch wykonany pomyślnie.', 'Nieprawidłowy ruch.']
-
-
-    # for player_token, moves in zip([token1, token2, token1, token2], [(0, 0), (1, 0), (0, 1), (1, 1)]):
-    #     move_response = test_client.post('/api/move',
-    #                                      json={'row': moves[0], 'col': moves[1], 'gameId': game_id},
-    #                                      headers={'Authorization': f'Bearer {player_token}'})
-    #     assert move_response.status_code == 200
-    #     move_data = move_response.json
-    #     assert move_data['message'] in ['Ruch wykonany pomyślnie.', 'Nieprawidłowy ruch.']
+    for player_token, moves in zip([token1, token2, token1, token2], [(0, 0), (1, 0), (0, 1), (1, 1)]):
+        move_response = test_client.post('/api/move',
+                                         json={'row': moves[0], 'col': moves[1], 'gameId': game_id},
+                                         headers={'Authorization': f'Bearer {player_token}'})
+        assert move_response.status_code == 200
+        move_data = move_response.json
+        assert move_data['message'] in ['Ruch wykonany pomyślnie.', 'Nieprawidłowy ruch.']
 
     # Optionally, you can add more assertions here to check the game state after each move
 

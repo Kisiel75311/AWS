@@ -41,6 +41,7 @@ class GameService:
 
     def player_join_game(self, game_id, player_id):
         game = db.session.get(Game, game_id)
+        player = db.session.get(Player, player_id)
         if not game:
             raise Exception("Game not found.")
 
@@ -52,6 +53,9 @@ class GameService:
             game.player1_id = player_id
         elif not game.player2_id:
             game.player2_id = player_id
+
+        player.current_game_id = game_id
+
 
         db.session.commit()
 
