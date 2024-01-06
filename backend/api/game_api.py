@@ -135,9 +135,10 @@ def join_game():
 @game_blueprint.route('/all_games', methods=['GET'])
 def get_all_games():
     try:
-        games = game_service.get_all_games()
+        games = Game.query.all()
+        games_data = [games.to_dict() for game in games]
         return jsonify({
-            'games': games
+            'games': games_data
         })
     except Exception as e:
         return jsonify({'error': str(e)}), 400

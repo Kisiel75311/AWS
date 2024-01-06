@@ -24,11 +24,11 @@ def build_app(testing=False):
     # Configure the app for testing or production
     if testing:
         app.config['TESTING'] = True
-        app.config["SQLALCHEMY_DATABASE_URI"] = "postgresql://postgres:admin123@database-1.chkwsw6g6zjj.us-east-1.rds.amazonaws.com:5432/aws"
+        # app.config["SQLALCHEMY_DATABASE_URI"] = "postgresql://postgres:admin123@database-1.chkwsw6g6zjj.us-east-1.rds.amazonaws.com:5432/aws"
         app.config['WTF_CSRF_ENABLED'] = False  # Disable CSRF form validation, typically for testing
         app.secret_key = 'BAD_SECRET_KEY'  # Use a secure, constant key in production
     else:
-        app.config["SQLALCHEMY_DATABASE_URI"] = "postgresql://postgres:admin123@database-1.chkwsw6g6zjj.us-east-1.rds.amazonaws.com:5432/aws"
+        # app.config["SQLALCHEMY_DATABASE_URI"] = "postgresql://postgres:admin123@database-1.chkwsw6g6zjj.us-east-1.rds.amazonaws.com:5432/aws"
         app.secret_key = 'BAD_SECRET_KEY'  # Use a secure, constant key in production
         app.config.update(SESSION_COOKIE_SAMESITE="None", SESSION_COOKIE_SECURE=True)
 
@@ -54,9 +54,7 @@ def build_app(testing=False):
     # Define routes
     @app.route('/api')
     def index():
-        # Example: Inserting a document into a collection
-        mongo.db.your_collection.insert_one({'name': 'Test'})
-        return jsonify({"message": "Welcome to your Flask MongoDB app!"})
+        return jsonify({"message": "Welcome to TitTacToe API."})
 
     # Swagger configuration
     SWAGGER_URL = '/api/docs'
