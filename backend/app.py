@@ -9,7 +9,7 @@ from flask_migrate import Migrate
 from flask_swagger_ui import get_swaggerui_blueprint
 from error_hanlers import register_error_handlers
 
-def build_app(testing=False):
+def build_app(testing=False, local_run=False):
     # Initialize Sentry SDK
     sentry_sdk.init(
         dsn="https://4cf6f815ee706c7a7e35b359fa634b7f@o4506447864463360.ingest.sentry.io/4506447866822656",
@@ -27,6 +27,10 @@ def build_app(testing=False):
         app.config["SQLALCHEMY_DATABASE_URI"] = "postgresql://postgres:admin123@database-1.chkwsw6g6zjj.us-east-1.rds.amazonaws.com:5432/aws-test"
         app.config['WTF_CSRF_ENABLED'] = False  # Disable CSRF form validation, typically for testing
         app.secret_key = 'BAD_SECRET_KEY'  # Use a secure, constant key in production
+    if local_run:
+        # app.config['TESTING'] = True
+        app.config["SQLALCHEMY_DATABASE_URI"] = "sqlite:///test.db"
+        app.config['WTF_CSRF_ENABLED'] = False
     else:
         app.config["SQLALCHEMY_DATABASE_URI"] = "postgresql://postgres:admin123@database-1.chkwsw6g6zjj.us-east-1.rds.amazonaws.com:5432/aws"
         app.secret_key = 'BAD_SECRET_KEY'  # Use a secure, constant key in production

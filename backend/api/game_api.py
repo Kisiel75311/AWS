@@ -136,9 +136,10 @@ def join_game():
 def get_all_games():
     try:
         games = Game.query.all()
-        games_data = [games.to_dict() for game in games]
+        games_data = [game.to_dict() for game in games]  # Corrected line
         return jsonify({
             'games': games_data
         })
     except Exception as e:
         return jsonify({'error': str(e)}), 400
+
