@@ -24,7 +24,7 @@ def build_app(testing=False):
     # Configure the app for testing or production
     if testing:
         app.config['TESTING'] = True
-        app.config['SQLALCHEMY_DATABASE_URI'] = 'sqlite:///:memory:'  # Use an in-memory database for tests
+        app.config["SQLALCHEMY_DATABASE_URI"] = "postgresql://postgres:admin123@database-1.chkwsw6g6zjj.us-east-1.rds.amazonaws.com:5432/aws"
         app.config['WTF_CSRF_ENABLED'] = False  # Disable CSRF form validation, typically for testing
         app.secret_key = 'BAD_SECRET_KEY'  # Use a secure, constant key in production
     else:

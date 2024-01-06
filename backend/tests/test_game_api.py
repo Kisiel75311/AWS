@@ -1,4 +1,3 @@
-# tests/test_game_api.py
 import unittest
 from flask_jwt_extended import create_access_token
 from api.game_api import game_blueprint
@@ -6,10 +5,10 @@ from models.player_model import Player
 from models.game_model import Game
 from app import build_app, db
 from services.game_service import GameService
-
 from game.TicTacToe import TicTacToe
+import allure
 
-
+@allure.feature('Game API')
 class TestGameApi(unittest.TestCase):
 
     @classmethod
@@ -40,7 +39,7 @@ class TestGameApi(unittest.TestCase):
         db.session.commit()
         return new_game
 
-
+    @allure.story('Test Start Game')
     def test_start_game(self):
         # Assume there is a valid player to make the requests
         player = self.create_player('Test Player', '123456')
@@ -48,6 +47,7 @@ class TestGameApi(unittest.TestCase):
         response = self.client.get('/api/start', headers={'Authorization': 'Bearer ' + jwt_token})
         self.assertEqual(200, response.status_code)
 
+    @allure.story('Test Invalid Move')
     def test_invalid_move(self):
         # Tworzenie gracza
         player1 = self.create_player('Test Player1', '123456')
@@ -69,7 +69,6 @@ class TestGameApi(unittest.TestCase):
         assert move_response.status_code == 400
         move_data = move_response.json
         assert move_data['message'] == 'Invalid move.'
-
 
 if __name__ == '__main__':
     unittest.main()

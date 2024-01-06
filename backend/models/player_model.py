@@ -5,7 +5,7 @@ from models import db
 class Player(db.Model):
     id = db.Column(db.Integer, primary_key=True)
     name = db.Column(db.String(255))
-    password = db.Column(db.String(128), nullable=False)
+    password = db.Column(db.String(255), nullable=False)
     elo_rating = db.Column(db.Integer)
     current_game_id = db.Column(db.Integer, db.ForeignKey('game.id'), nullable=True, unique=False)
 

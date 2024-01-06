@@ -1,16 +1,16 @@
 import unittest
 from unittest.mock import Mock, patch
 from game.gameController import GameController
-
 from exceptions import GameError
 import allure
 
-
+@allure.feature('Game Controller')
 class GameControllerTest(unittest.TestCase):
 
     def setUp(self):
         self.controller = GameController()
 
+    @allure.story('Get Game')
     @patch('game.gameController.db.session')
     def test_get_game(self, mock_db):
         mock_db.query.return_value.filter_by.return_value.first.return_value = Mock(board_state=' ',
@@ -19,6 +19,8 @@ class GameControllerTest(unittest.TestCase):
         self.assertIsNotNone(game)
         self.assertEqual(game.current_player, 'X')
 
+    @allure.story('Create New Game')
+    @allure.severity(allure.severity_level.CRITICAL)
     @patch('game.gameController.db.session')
     def test_create_new_game_player_not_found(self, mock_db):
         mock_db.get.return_value = None
@@ -26,6 +28,7 @@ class GameControllerTest(unittest.TestCase):
         with self.assertRaises(AttributeError):
             self.controller.create_new_game(1)
 
+    @allure.story('Player Join Game')
     @patch('game.gameController.db.session')
     def test_player_join_game_two_players(self, mock_db):
         mock_game = Mock(player1_id=1, player2_id=None)
@@ -35,6 +38,7 @@ class GameControllerTest(unittest.TestCase):
         with self.assertRaises(Exception):
             self.controller.player_join_game(1, 1)
 
+    @allure.story('Play Move')
     @patch('game.gameController.db.session')
     @patch('game.gameController.TicTacToe')
     @patch('game.gameController.Game')
@@ -64,12 +68,12 @@ class GameControllerTest(unittest.TestCase):
             message, _, _ = self.controller.play_move(1, 0, 0, 1)
             self.assertEqual(message, "Move played successfully.")
         except GameError as e:
-            self.fail(
-                f"We didn't expect a GameError here: {str(e.message)}")  # Zwróć uwagę na zmieniony str(e) na str(e.message)
+            self.fail(f"We didn't expect a GameError here: {str(e.message)}")
 
         # Sprawdzamy, czy zwrócona wiadomość jest zgodna z oczekiwaniami
         self.assertEqual(message, "Move played successfully.")
 
+    @allure.story('Reset Game')
     @patch('game.gameController.db.session')
     def test_reset_game(self, mock_db):
         # Ustawienie atrybutu board_state na ciąg znaków reprezentujący stan planszy
@@ -79,13 +83,14 @@ class GameControllerTest(unittest.TestCase):
         self.assertEqual(message, "Game reset.")
         self.assertEqual(current_player, 'X')
 
+    @allure.story('Get Game Not Found')
     @patch('game.gameController.db.session')
     def test_get_game_not_found(self, mock_db):
         mock_db.query.return_value.filter_by.return_value.first.return_value = None
         game = self.controller.get_game(1)
         self.assertIsNone(game)
 
-
+    @allure.story('Player Join Game Not Found')
     @patch('game.gameController.db.session')
     def test_player_join_game_not_found(self, mock_db):
         mock_db.query.return_value.filter_by.return_value.first.return_value = None
@@ -94,6 +99,7 @@ class GameControllerTest(unittest.TestCase):
         with self.assertRaises(AttributeError):
             self.controller.player_join_game(1, 1)
 
+    @allure.story('Play Move Game Over')
     @patch('game.gameController.db.session')
     @patch('game.gameController.GameController.get_game')
     def test_play_move_game_over(self, mock_get_game, mock_db):
@@ -114,6 +120,7 @@ class GameControllerTest(unittest.TestCase):
         except GameError as e:
             self.fail(f"We didn't expect a GameError here: {e.message}")
 
+    @allure.story('Reset Game Not Participant')
     @patch('game.gameController.db.session')
     def test_reset_game_not_participant(self, mock_db):
         mock_game_record = Mock(player1_id=1, player2_id=2)
@@ -122,6 +129,7 @@ class GameControllerTest(unittest.TestCase):
         message, _, _ = self.controller.reset_game(1, 3)
         self.assertEqual(message, "Player is not a participant of this game.")
 
+    @allure.story('Play Move Invalid')
     @patch('game.gameController.TicTacToe.make_move')
     @patch('game.gameController.db.session')
     def test_play_move_invalid_move(self, mock_make_move, mock_db):
@@ -133,7 +141,6 @@ class GameControllerTest(unittest.TestCase):
 
         with self.assertRaises(GameError):
             self.controller.play_move(1, 0, 0, 1)
-
 
 if __name__ == '__main__':
     unittest.main()
