@@ -1,10 +1,10 @@
 # Use the official Python image as the base image
 FROM python:3.9.13
 
-# Copy the CA certificate
-COPY cert2.crt /usr/local/share/ca-certificates/cert2.crt
-COPY cert3.crl /usr/local/share/ca-certificates/cert3.crl
-COPY certyfikat.crt /usr/local/share/ca-certificates/certyfikat.crt
+## Copy the CA certificate
+#COPY cert2.crt /usr/local/share/ca-certificates/cert2.crt
+#COPY cert3.crl /usr/local/share/ca-certificates/cert3.crl
+#COPY certyfikat.crt /usr/local/share/ca-certificates/certyfikat.crt
 
 
 # Update the CA trust store
@@ -29,6 +29,7 @@ COPY . .
 ENV FLASK_RUN_HOST=0.0.0.0
 ENV FLASK_RUN_PORT=8080
 ENV FLASK_ENV=development
+ENV FLASK_APP=app:build_app
 
 # Run tests and generate Allure reports
 RUN pytest --alluredir=/app/reports || true
