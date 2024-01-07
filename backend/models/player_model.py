@@ -7,11 +7,11 @@ class Player(db.Model):
     name = db.Column(db.String(255))
     password = db.Column(db.String(255), nullable=False)
     elo_rating = db.Column(db.Integer)
-    current_game_id = db.Column(db.Integer, db.ForeignKey('game.id'), nullable=True, unique=False)
+    current_game_id = db.Column(db.Integer, nullable=True, unique=False)
 
-    # Zaktualizowana definicja relacji z Game
-    current_game = db.relationship('Game', foreign_keys=[current_game_id],
-                                   backref=db.backref('current_player_game', uselist=False), uselist=False)
+    # # Zaktualizowana definicja relacji z Game
+    # current_game = db.relationship('Game', foreign_keys=[current_game_id],
+    #                                backref=db.backref('current_player_game', uselist=False), uselist=False)
 
     def __init__(self, name, password):
         self.name = name

@@ -8,20 +8,25 @@ from flask_jwt_extended import JWTManager
 from flask_migrate import Migrate
 from flask_swagger_ui import get_swaggerui_blueprint
 from error_hanlers import register_error_handlers
+import logging
+# from flask_socketio import SocketIO
+from events import register_socket_events
 # from flask_awscognito import AWSCognitoAuthentication
-
+logging.basicConfig(level=logging.DEBUG)
 def build_app(testing=False):
     # Initialize Sentry SDK
-    sentry_sdk.init(
-        dsn="https://4cf6f815ee706c7a7e35b359fa634b7f@o4506447864463360.ingest.sentry.io/4506447866822656",
-        traces_sample_rate=1.0,
-        profiles_sample_rate=1.0,
-    )
+    # sentry_sdk.init(
+    #     dsn="https://4cf6f815ee706c7a7e35b359fa634b7f@o4506447864463360.ingest.sentry.io/4506447866822656",
+    #     traces_sample_rate=1.0,
+    #     profiles_sample_rate=1.0,
+    # )
 
     # Create a Flask instance
     app = Flask(__name__)
     app.config.from_object(Config)
 
+    # Inicjalizacja SocketIO
+    # socketio = SocketIO(app, cors_allowed_origins='http://localhost:8080')
 
     # # Dodaj konfigurację dla AWS Cognito
     # app.config['AWS_DEFAULT_REGION'] = 'us-east-1' # na przykład 'us-east-1'
@@ -58,7 +63,7 @@ def build_app(testing=False):
 
     # Set up CORS
     CORS(app)
-    # CORS(app, resources={r"/api/*": {"origins": "*"}})  # Możesz ograniczyć do konkretnych źródeł zamiast używać "*"
+    CORS(app, resources={r"/api/*": {"origins": "*"}})  # Możesz ograniczyć do konkretnych źródeł zamiast używać "*"
     jwt = JWTManager(app)
 
     # Register error handlers
@@ -81,6 +86,7 @@ def build_app(testing=False):
     )
     app.register_blueprint(swaggerui_blueprint, url_prefix=SWAGGER_URL)
 
+    # register_socket_events(socketio)
     return app
 
 def register_blueprints(app):

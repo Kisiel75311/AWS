@@ -1,18 +1,22 @@
-
 <template>
   <div id="app">
-    <Game />
+    <router-view />
   </div>
 </template>
 
 <script>
-import Game from './components/GameBoard.vue';
-
 export default {
-  name: 'App',
-  components: {
-    Game,
-  },
+  name: 'App'
 };
 </script>
 
+<style>
+#app {
+  font-family: Avenir, Helvetica, Arial, sans-serif;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+  text-align: center;
+  color: #2c3e50;
+  margin-top: 60px;
+}
+</style>

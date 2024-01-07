@@ -1,23 +1,34 @@
+<!--frontend-new/py-project/src/GameBoard.vue-->
 <template>
   <div class="gameboard-container">
     <h1>GameBoard</h1>
-
     <h2>Aktualny gracz: {{ currentPlayer }}</h2>
     <button @click="startGame">Start New Game</button>
     <button @click="resetGame">Reset Game</button>
-
-    <div class="message">{{ message }}</div>
+    <div v-if="message" class="message">{{ message }}</div>
     <div v-if="errorMessage" class="error-message">{{ errorMessage }}</div>
 
     <div class="board">
       <div v-for="(row, rowIndex) in boardState" :key="rowIndex" class="board-row">
         <button v-for="(cell, colIndex) in row" :key="colIndex"
-                @click="makeMove(rowIndex, colIndex)"
-                :disabled="cell !== '' || currentPlayer !== jwtUserId"
+                @click="makeMove(gameId, rowIndex, colIndex)"
+                :disabled="cell !== '.'"
                 class="cell">
-          {{ cell }}
+          {{ rowIndex }},{{ colIndex }}: {{ cell === '.' ? '' : cell }}
         </button>
       </div>
+    </div>
+
+    <div class="game-info">
+      <p><strong>ID Gry:</strong> {{ gameId }}</p>
+      <p><strong>Aktualny Gracz:</strong> {{ currentPlayer }}</p>
+      <p><strong>Wiadomość:</strong> {{ message }}</p>
+      <p><strong>Stan Planszy:</strong></p>
+      <ul>
+        <li v-for="(row, rowIndex) in boardState" :key="rowIndex">
+          Rząd {{ rowIndex }}: <span v-for="(cell, colIndex) in row" :key="colIndex">{{ cell }}</span>
+        </li>
+      </ul>
     </div>
 
     <div class="games-list">
@@ -32,6 +43,7 @@
   </div>
 </template>
 
+
 <script>
 import axios from 'axios';
 
@@ -43,17 +55,16 @@ export default {
       gameId: null,
       message: "",
       errorMessage: "",
-      games: [], // Lista dostępnych gier
-      jwtUserId: this.getJwtUserId() // Wyciąga ID użytkownika z tokenu JWT
+      games: [],
+      jwtUserId: this.getJwtUserId(),
     };
   },
   mounted() {
-    // this.jwtUserId = this.getJwtUserId();
     this.fetchGames();
+    this.pollGameStatus = setInterval(this.fetchCurrentGame, 2000);
   },
   methods: {
     getJwtUserId() {
-      // Funkcja do wyodrębnienia ID użytkownika z tokenu JWT
       const token = localStorage.getItem('jwtToken');
       if (token) {
         const payloadBase64 = token.split('.')[1];
@@ -71,63 +82,75 @@ export default {
           .catch(this.handleError);
     },
     startGame() {
-      const token = localStorage.getItem('jwtToken');
-      axios.get('/api/start', {headers: {'Authorization': `Bearer ${token}`}})
+      axios.get('/api/start', {headers: {"Authorization": `Bearer ${localStorage.getItem('jwtToken')}`}})
           .then(response => {
             this.handleResponse(response);
             this.fetchGames();
           })
           .catch(this.handleError);
     },
-    makeMove(row, col) {
-      const token = localStorage.getItem('jwtToken');
-      const moveData = {row, col, gameId: this.gameId};
-      axios.post("/api/move", moveData, {
-        headers: {'Authorization': `Bearer ${token}`},
-        params: {gameId: this.gameId}
+    makeMove(gameId, row, col) {
+      const postData = {
+        gameId: this.gameId,
+        row: row,
+        col: col
+      };
+
+      axios.post('/api/move', postData, {
+        headers: {"Authorization": `Bearer ${localStorage.getItem('jwtToken')}`}
       })
-          .then((res) => {
-            this.handleResponse(res);
+          .then(response => {
+            this.handleResponse(response);
           })
-          .catch((err) => {
-            this.handleError(err);
-          });
-    },
-    resetGame() {
-      const token = localStorage.getItem('jwtToken');
-      axios.get('/api/reset', {
-        headers: {'Authorization': `Bearer ${token}`},
-        params: {gameId: this.gameId}
-      })
-          .then(this.handleResponse)
           .catch(this.handleError);
+    },
+
+    resetGame() {
+      axios.get(`/api/reset?gameId=${this.gameId}`,
+          {headers: {"Authorization": `Bearer ${localStorage.getItem('jwtToken')}`}})
+          .then(response => {
+            this.handleResponse(response);
+          })
+          .catch(this.handleError);
+    },
+    joinGame(gameId) {
+      axios.post('/api/join', {gameId},
+          {headers: {"Authorization": `Bearer ${localStorage.getItem('jwtToken')}`}})
+          .then(response => {
+            this.handleResponse(response);
+            this.fetchGames();
+          })
+          .catch(this.handleError);
+    },
+    fetchCurrentGame() {
+      if (this.gameId) {
+        axios.get(`/api/game/${this.gameId}`,
+            {headers: {"Authorization": `Bearer ${localStorage.getItem('jwtToken')}`}})
+            .then(response => {
+              this.handleResponse(response);
+            })
+            .catch(this.handleError);
+      }
     },
     handleResponse(res) {
       this.boardState = res.data.boardState;
       this.currentPlayer = res.data.currentPlayer;
-      this.message = res.data.message;
       this.gameId = res.data.gameId;
-      this.errorMessage = ""; // Clear any previous errors
+      this.message = res.data.message;
     },
-    handleError(err) {
-      if (err.response) {
-        this.errorMessage = err.response.data.error || 'An error occurred on the server.';
-      } else if (err.request) {
-        this.errorMessage = 'The request was made but no response was received.';
-      } else {
-        this.errorMessage = 'Something went wrong in setting up the request.';
-      }
+    handleError(error) {
+      this.errorMessage = error.response.data.error;
     },
     countPlayers(game) {
       return (game.player1_id ? 1 : 0) + (game.player2_id ? 1 : 0);
     },
     isGameFull(game) {
       return this.countPlayers(game) === 2;
-    },
-    joinGame(gameId) {
-      // Logika dołączania do gry
-      console.log('Joining game:', gameId);
-      // Tutaj dodać kod dołączania do gry
+    }
+  },
+  beforeUnmount() {
+    if (this.pollGameStatus) {
+      clearInterval(this.pollGameStatus);
     }
   }
 };
@@ -135,7 +158,7 @@ export default {
 
 <style>
 .gameboard-container {
-  /* Your styles */
+  /* Tutaj dodaj swoje style */
 }
 
 .board {
@@ -155,22 +178,8 @@ export default {
   justify-content: center;
   align-items: center;
   font-size: 2em;
+  cursor: pointer;
 }
 
-.board-row {
-  /* Your styles for the board rows */
-}
-
-.error-message {
-  color: red;
-  /* Styles for error messages */
-}
-
-.message {
-  /* Styles for general messages */
-}
-
-.games-list {
-  /* Styles for the list of available games */
-}
+/* Dodaj tutaj dodatkowe style, jeśli potrzebne */
 </style>

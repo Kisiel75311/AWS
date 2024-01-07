@@ -3,6 +3,9 @@
 #aktywacja venv
 source backend/venv/Scripts/activate
 
+#instalacja zależności
+pip install -r backend/requirements.txt
+
 # Uruchomienie testów i generowanie raportów
 pytest --alluredir=reports
 

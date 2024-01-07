@@ -1,23 +1,27 @@
-import Vue from 'vue';
-import Router from 'vue-router';
+// router/index.js
+import { createRouter, createWebHistory } from 'vue-router';
 import GameBoard from '@/components/GameBoard';
-import Login from "@/components/Login.vue";
+import LoginComponent from '@/components/LoginComponent';
 
-Vue.use(Router);
-
-export default new Router({
-  mode: 'history', // Używa history API HTML5 do usuwania znaku hash (#) z URL
+const router = createRouter({
+  history: createWebHistory(),
   routes: [
     {
-      path: '/game', // Adres URL, pod którym będzie dostępny komponent GameBoard
+      path: '/',
+      redirect: '/start'  // Dodajemy przekierowanie z '/' na '/start'
+    },
+    {
+      path: '/game',
       name: 'GameBoard',
       component: GameBoard
     },
     {
-      path: '/login', // Adres URL, pod którym będzie dostępny komponent Login
-      name: 'Login',
-      component: Login
+      path: '/start',
+      name: 'LoginComponent',
+      component: LoginComponent
     },
-    // Tutaj możesz dodać inne ścieżki do Twoich komponentów
+    // Możesz dodać tutaj inne ścieżki
   ]
 });
+
+export default router;
