@@ -8,7 +8,7 @@ from flask_jwt_extended import JWTManager
 from flask_migrate import Migrate
 from flask_swagger_ui import get_swaggerui_blueprint
 from error_hanlers import register_error_handlers
-from flask_awscognito import AWSCognitoAuthentication
+# from flask_awscognito import AWSCognitoAuthentication
 
 def build_app(testing=False):
     # Initialize Sentry SDK
@@ -23,16 +23,16 @@ def build_app(testing=False):
     app.config.from_object(Config)
 
 
-    # Dodaj konfigurację dla AWS Cognito
-    app.config['AWS_DEFAULT_REGION'] = 'us-east-1' # na przykład 'us-east-1'
-    app.config['AWS_COGNITO_DOMAIN'] = 'https://tictactoeapp.auth.us-east-1.amazoncognito.com'
-    app.config['AWS_COGNITO_USER_POOL_ID'] = 'us-east-1_azAQV5aWO'
-    app.config['AWS_COGNITO_USER_POOL_CLIENT_ID'] = '25qht9jpfc2d7cmngemroac4s4'
-    app.config['AWS_COGNITO_USER_POOL_CLIENT_SECRET'] = '1fvtp624s3hvbhblbifou0o8idjm379jbg0fn8qlg0jaoto303jj' # jeśli jest wymagany
-    app.config['AWS_COGNITO_REDIRECT_URL'] = 'http://10.0.1.3:8080/'  # URL do przekierowania po uwierzytelnieniu
-
-    # Inicjalizacja autentykacji Cognito
-    cognito_auth = AWSCognitoAuthentication(app)
+    # # Dodaj konfigurację dla AWS Cognito
+    # app.config['AWS_DEFAULT_REGION'] = 'us-east-1' # na przykład 'us-east-1'
+    # app.config['AWS_COGNITO_DOMAIN'] = 'https://tictactoeapp.auth.us-east-1.amazoncognito.com'
+    # app.config['AWS_COGNITO_USER_POOL_ID'] = 'us-east-1_azAQV5aWO'
+    # app.config['AWS_COGNITO_USER_POOL_CLIENT_ID'] = '25qht9jpfc2d7cmngemroac4s4'
+    # app.config['AWS_COGNITO_USER_POOL_CLIENT_SECRET'] = '1fvtp624s3hvbhblbifou0o8idjm379jbg0fn8qlg0jaoto303jj' # jeśli jest wymagany
+    # app.config['AWS_COGNITO_REDIRECT_URL'] = 'http://10.0.1.3:8080/'  # URL do przekierowania po uwierzytelnieniu
+    #
+    # # Inicjalizacja autentykacji Cognito
+    # cognito_auth = AWSCognitoAuthentication(app)
 
     # Configure the app for testing or production
     if testing:
