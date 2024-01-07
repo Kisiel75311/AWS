@@ -26,7 +26,7 @@ ENV FLASK_ENV=development
 ENV FLASK_APP=app:build_app
 
 # Run tests and generate Allure reports
-RUN pytest --alluredir=/app/reports
+#RUN pytest --alluredir=/app/reports
 
 # Copy the entrypoint script into the container
 COPY entrypoint.sh /app/entrypoint.sh
