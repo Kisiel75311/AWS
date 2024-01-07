@@ -70,5 +70,33 @@ class TestGameApi(unittest.TestCase):
         move_data = move_response.json
         assert move_data['message'] == 'Invalid move.'
 
+    @allure.story('Test Valid Move')
+    def test_valid_move(self):
+        # Tworzenie gracza
+        player1 = self.create_player('Test Player1', '123456')
+
+        # Tworzenie nowej gry
+        new_game = self.create_game(player1.id)
+
+        # Ustawienie gracza jako uczestnika gry
+        player1.current_game_id = new_game.id
+        db.session.commit()
+
+        # Tworzenie tokena JWT dla gracza
+        token1 = create_access_token(player1.id)
+
+        # Wykonywanie prawidłowego ruchu
+        move_response = self.client.post('/api/move',
+                                         json={'row': 0, 'col': 1, 'gameId': new_game.id},
+                                         headers={'Authorization': f'Bearer {token1}'})
+
+        # Sprawdzenie, czy odpowiedź jest sukcesem, w przeciwnym razie wyświetl szczegółowe informacje
+        assert move_response.status_code == 200, f"Failed to make a valid move. Response: {move_response.get_data(as_text=True)}"
+
+        move_data = move_response.json
+        assert move_data[
+                   'message'] == 'Move played successfully.', f"Unexpected response message: {move_data['message']}"
+
+
 if __name__ == '__main__':
     unittest.main()

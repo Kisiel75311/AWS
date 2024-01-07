@@ -39,3 +39,28 @@ class GameError(BaseException):
         if self.additional_info:
             response['additional_info'] = self.additional_info
         return response
+
+class PlayerNotFoundException(BaseException):
+    status_code = 404
+    message = "Player not found"
+
+
+class GameNotFoundException(BaseException):
+    status_code = 404
+    message = "Game not found"
+
+
+class InvalidMoveException(BaseException):
+    status_code = 400
+    message = "Invalid move"
+
+
+class NotYourTurnException(BaseException):
+    status_code = 400
+    message = "Not your turn"
+
+
+class GameFullException(BaseException):
+    status_code = 400
+    message = "Game is full"
+

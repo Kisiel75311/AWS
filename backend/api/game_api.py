@@ -73,6 +73,7 @@ def make_move():
             'boardState': board_state,
             'currentPlayer': current_player,
             'message': result,
+            'gameId': game_id,
         })
     except GameError as e:
         # Obsługa wyjątku GameError
@@ -98,7 +99,8 @@ def reset_game():
         return jsonify({
             'boardState': board_state,
             'currentPlayer': current_player,
-            'message': result
+            'message': result,
+            'gameId': game_id
         })
     except ValueError:
         return jsonify({'error': 'Invalid Game ID.'}), 400
@@ -126,7 +128,8 @@ def join_game():
         return jsonify({
             'boardState': board_state,
             'currentPlayer': current_player,
-            'message': result
+            'message': result,
+            'gameId': game_id
         })
     except Exception as e:
         return jsonify({'error': str(e)}), 400
@@ -142,4 +145,30 @@ def get_all_games():
         })
     except Exception as e:
         return jsonify({'error': str(e)}), 400
+
+
+@game_blueprint.route('/game/<int:game_id>', methods=['GET'])
+@jwt_required()
+def get_game(game_id):
+    # Sprawdź, czy gra istnieje
+    game = db.session.get(Game, game_id)
+    if not game:
+        return jsonify({'error': 'Game not found.'}), 404
+
+    # Sprawdź, czy użytkownik jest uczestnikiem gry
+    user_id = get_jwt_identity()
+    if user_id not in [game.player1_id, game.player2_id]:
+        return jsonify({'error': 'User is not a participant of this game.'}), 403
+
+    try:
+        board_state = GameService.get_board_as_2d_array(game.board_state)
+        return jsonify({
+            'gameId': game.id,
+            'boardState': board_state,
+            'currentPlayer': game.current_player,
+            'gameOver': game.game_over,
+            'winner': game.winner
+        })
+    except Exception as e:
+        return jsonify({'error': str(e)}), 500
 

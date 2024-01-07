@@ -8,31 +8,36 @@ from flask_jwt_extended import JWTManager
 from flask_migrate import Migrate
 from flask_swagger_ui import get_swaggerui_blueprint
 from error_hanlers import register_error_handlers
-from flask_awscognito import AWSCognitoAuthentication
-
+import logging
+# from flask_socketio import SocketIO
+from events import register_socket_events
+# from flask_awscognito import AWSCognitoAuthentication
+logging.basicConfig(level=logging.DEBUG)
 def build_app(testing=False):
     # Initialize Sentry SDK
-    sentry_sdk.init(
-        dsn="https://4cf6f815ee706c7a7e35b359fa634b7f@o4506447864463360.ingest.sentry.io/4506447866822656",
-        traces_sample_rate=1.0,
-        profiles_sample_rate=1.0,
-    )
+    # sentry_sdk.init(
+    #     dsn="https://4cf6f815ee706c7a7e35b359fa634b7f@o4506447864463360.ingest.sentry.io/4506447866822656",
+    #     traces_sample_rate=1.0,
+    #     profiles_sample_rate=1.0,
+    # )
 
     # Create a Flask instance
     app = Flask(__name__)
     app.config.from_object(Config)
 
+    # Inicjalizacja SocketIO
+    # socketio = SocketIO(app, cors_allowed_origins='http://localhost:8080')
 
-    # Dodaj konfigurację dla AWS Cognito
-    app.config['AWS_DEFAULT_REGION'] = 'us-east-1' # na przykład 'us-east-1'
-    app.config['AWS_COGNITO_DOMAIN'] = 'https://tictactoeapp.auth.us-east-1.amazoncognito.com'
-    app.config['AWS_COGNITO_USER_POOL_ID'] = 'us-east-1_azAQV5aWO'
-    app.config['AWS_COGNITO_USER_POOL_CLIENT_ID'] = '25qht9jpfc2d7cmngemroac4s4'
-    app.config['AWS_COGNITO_USER_POOL_CLIENT_SECRET'] = '1fvtp624s3hvbhblbifou0o8idjm379jbg0fn8qlg0jaoto303jj' # jeśli jest wymagany
-    app.config['AWS_COGNITO_REDIRECT_URL'] = 'http://10.0.1.3:8080/'  # URL do przekierowania po uwierzytelnieniu
-
-    # Inicjalizacja autentykacji Cognito
-    cognito_auth = AWSCognitoAuthentication(app)
+    # # Dodaj konfigurację dla AWS Cognito
+    # app.config['AWS_DEFAULT_REGION'] = 'us-east-1' # na przykład 'us-east-1'
+    # app.config['AWS_COGNITO_DOMAIN'] = 'https://tictactoeapp.auth.us-east-1.amazoncognito.com'
+    # app.config['AWS_COGNITO_USER_POOL_ID'] = 'us-east-1_azAQV5aWO'
+    # app.config['AWS_COGNITO_USER_POOL_CLIENT_ID'] = '25qht9jpfc2d7cmngemroac4s4'
+    # app.config['AWS_COGNITO_USER_POOL_CLIENT_SECRET'] = '1fvtp624s3hvbhblbifou0o8idjm379jbg0fn8qlg0jaoto303jj' # jeśli jest wymagany
+    # app.config['AWS_COGNITO_REDIRECT_URL'] = 'http://10.0.1.3:8080/'  # URL do przekierowania po uwierzytelnieniu
+    #
+    # # Inicjalizacja autentykacji Cognito
+    # cognito_auth = AWSCognitoAuthentication(app)
 
     # Configure the app for testing or production
     if testing:
@@ -58,7 +63,7 @@ def build_app(testing=False):
 
     # Set up CORS
     CORS(app)
-    # CORS(app, resources={r"/api/*": {"origins": "*"}})  # Możesz ograniczyć do konkretnych źródeł zamiast używać "*"
+    CORS(app, resources={r"/api/*": {"origins": "*"}})  # Możesz ograniczyć do konkretnych źródeł zamiast używać "*"
     jwt = JWTManager(app)
 
     # Register error handlers
@@ -81,6 +86,7 @@ def build_app(testing=False):
     )
     app.register_blueprint(swaggerui_blueprint, url_prefix=SWAGGER_URL)
 
+    # register_socket_events(socketio)
     return app
 
 def register_blueprints(app):

@@ -14,11 +14,22 @@
                 @click="makeMove(gameId, rowIndex, colIndex)"
                 :disabled="cell !== '.'"
                 class="cell">
-          {{ cell === '.' ? '' : cell }}
+          {{ rowIndex }},{{ colIndex }}: {{ cell === '.' ? '' : cell }}
         </button>
       </div>
     </div>
 
+    <div class="game-info">
+      <p><strong>ID Gry:</strong> {{ gameId }}</p>
+      <p><strong>Aktualny Gracz:</strong> {{ currentPlayer }}</p>
+      <p><strong>Wiadomość:</strong> {{ message }}</p>
+      <p><strong>Stan Planszy:</strong></p>
+      <ul>
+        <li v-for="(row, rowIndex) in boardState" :key="rowIndex">
+          Rząd {{ rowIndex }}: <span v-for="(cell, colIndex) in row" :key="colIndex">{{ cell }}</span>
+        </li>
+      </ul>
+    </div>
 
     <div class="games-list">
       <h2>Dostępne gry:</h2>

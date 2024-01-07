@@ -1,5 +1,5 @@
 # backend/game/gameController.py
-from .TicTacToe import TicTacToe
+# from .TicTacToe import TicTacToe
 from models.game_model import Game
 from models import db
 from contextlib import contextmanager
@@ -14,7 +14,8 @@ class GameController:
         """Get game from the database and create a new game instance."""
         game_record = db.session.query(Game).filter_by(id=game_id).first()
         if game_record:
-            new_game = TicTacToe(game_id=game_id)
+            # new_game = TicTacToe(game_id=game_id)
+            new_game = db.session.query(Game).filter_by(id=game_id).first()
             new_game.set_board_state_from_string(game_record.board_state)
             new_game.current_player = game_record.current_player
             return new_game
@@ -24,7 +25,7 @@ class GameController:
         player = db.session.get(Player, player_id)
         self._handle_player_game_change(player, None)  # Handle existing game if any
 
-        new_game = TicTacToe()
+        new_game = Game()
         game_record = Game(board_state=new_game.get_board_state(), current_player='X', winner=None, game_over=False,
                            player1_id=player_id)
         db.session.add(game_record)
