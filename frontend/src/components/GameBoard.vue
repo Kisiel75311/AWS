@@ -1,4 +1,3 @@
-<!--frontend/src/components/GameBoard.vue-->
 <template>
   <div>
     <h1>{{ message }}</h1>
@@ -34,51 +33,65 @@ export default {
     startGame() {
       axios.get("/api/start", {
         headers: {
+          "Authorization": `Bearer ${this.getToken()}`,
           "Content-Type": "application/json"
         }
       })
-          .then((res) => {
-            this.boardState = res.data.boardState;
-            this.currentPlayer = res.data.currentPlayer;
-            this.gameId = res.data.gameId;
-            this.message = res.data.message;
-            this.$forceUpdate();
-          })
-          .catch((err) => {
-            console.error(err);
-          });
+      .then((res) => {
+        this.handleResponse(res);
+      })
+      .catch((err) => {
+        this.handleError(err);
+      });
     },
     makeMove(row, col) {
-      const moveData = {row, col, gameId: this.gameId};
+      const moveData = { row, col, gameId: this.gameId };
       axios.post("/api/move", moveData, {
         headers: {
+          "Authorization": `Bearer ${this.getToken()}`,
           "Content-Type": "application/json"
         }
       })
-          .then((res) => {
-            this.boardState = res.data.boardState;
-            this.currentPlayer = res.data.currentPlayer;
-            this.message = res.data.message;
-          })
-          .catch((err) => {
-            console.error(err);
-          });
+      .then((res) => {
+        this.handleResponse(res);
+      })
+      .catch((err) => {
+        this.handleError(err);
+      });
     },
     resetGame() {
       axios.get(`/api/reset?gameId=${this.gameId}`, {
         headers: {
+          "Authorization": `Bearer ${this.getToken()}`,
           "Content-Type": "application/json"
         }
       })
-          .then((res) => {
-            this.boardState = res.data.boardState;
-            this.currentPlayer = res.data.currentPlayer;
-            this.message = res.data.message;
-          })
-          .catch((err) => {
-            console.error(err);
-          });
+      .then((res) => {
+        this.handleResponse(res);
+      })
+      .catch((err) => {
+        this.handleError(err);
+      });
     },
+    getToken() {
+      // Tu pobierz token JWT z miejsca, w którym jest przechowywany (np. localStorage)
+      return localStorage.getItem('jwtToken');
+    },
+    handleResponse(res) {
+      this.boardState = res.data.boardState;
+      this.currentPlayer = res.data.currentPlayer;
+      this.message = res.data.message;
+      this.gameId = res.data.gameId;
+    },
+    handleError(err) {
+      // Obsługa błędów z API
+      console.error(err);
+      if (err.response && err.response.data) {
+        this.message = err.response.data.error || 'Wystąpił błąd.';
+      } else {
+        this.message = 'Wystąpił problem z połączeniem z serwerem.';
+      }
+    }
   },
   created() {
     this.startGame();
