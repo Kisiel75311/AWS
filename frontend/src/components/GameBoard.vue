@@ -14,6 +14,16 @@
         </button>
       </div>
     </div>
+
+    <div v-if="games.length">
+      <h2>Dostępne gry:</h2>
+      <ul>
+        <li v-for="game in games" :key="game.id">
+          Gra #{{ game.id }} -
+          <button @click="joinGame(game.id)">Dołącz</button>
+        </li>
+      </ul>
+    </div>
   </div>
 </template>
 
@@ -27,6 +37,7 @@ export default {
       currentPlayer: "",
       gameId: null,
       message: "",
+      games: [], // Lista dostępnych gier
     };
   },
   methods: {
@@ -37,27 +48,27 @@ export default {
           "Content-Type": "application/json"
         }
       })
-      .then((res) => {
-        this.handleResponse(res);
-      })
-      .catch((err) => {
-        this.handleError(err);
-      });
+          .then((res) => {
+            this.handleResponse(res);
+          })
+          .catch((err) => {
+            this.handleError(err);
+          });
     },
     makeMove(row, col) {
-      const moveData = { row, col, gameId: this.gameId };
+      const moveData = {row, col, gameId: this.gameId};
       axios.post("/api/move", moveData, {
         headers: {
           "Authorization": `Bearer ${this.getToken()}`,
           "Content-Type": "application/json"
         }
       })
-      .then((res) => {
-        this.handleResponse(res);
-      })
-      .catch((err) => {
-        this.handleError(err);
-      });
+          .then((res) => {
+            this.handleResponse(res);
+          })
+          .catch((err) => {
+            this.handleError(err);
+          });
     },
     resetGame() {
       axios.get(`/api/reset?gameId=${this.gameId}`, {
@@ -66,15 +77,43 @@ export default {
           "Content-Type": "application/json"
         }
       })
-      .then((res) => {
-        this.handleResponse(res);
+          .then((res) => {
+            this.handleResponse(res);
+          })
+          .catch((err) => {
+            this.handleError(err);
+          });
+    },
+    fetchGames() {
+      axios.get("/api/all_games", {
+        headers: {
+          "Authorization": `Bearer ${this.getToken()}`,
+          "Content-Type": "application/json"
+        }
       })
-      .catch((err) => {
-        this.handleError(err);
-      });
+          .then(response => {
+            this.games = response.data.games;
+          })
+          .catch(error => {
+            console.error(error);
+            // Obsługa błędów
+          });
+    },
+    joinGame(gameId) {
+      axios.post("/api/join", {gameId}, {
+        headers: {
+          "Authorization": `Bearer ${this.getToken()}`,
+          "Content-Type": "application/json"
+        }
+      })
+          .then(response => {
+            this.handleResponse(response);
+          })
+          .catch(error => {
+            this.handleError(error);
+          });
     },
     getToken() {
-      // Tu pobierz token JWT z miejsca, w którym jest przechowywany (np. localStorage)
       return localStorage.getItem('jwtToken');
     },
     handleResponse(res) {
@@ -84,7 +123,6 @@ export default {
       this.gameId = res.data.gameId;
     },
     handleError(err) {
-      // Obsługa błędów z API
       console.error(err);
       if (err.response && err.response.data) {
         this.message = err.response.data.error || 'Wystąpił błąd.';
@@ -95,12 +133,12 @@ export default {
   },
   created() {
     this.startGame();
+    this.fetchGames();
   },
 };
 </script>
 
 <style>
-/* Styl dla komponentu gry */
 .board {
   display: grid;
   grid-template-columns: repeat(3, 1fr);
@@ -120,9 +158,5 @@ export default {
   font-size: 2em;
 }
 
-.board button {
-  width: 100px;
-  height: 100px;
-  /* Możesz dodać dodatkowe style tutaj */
-}
+/* Dodaj tutaj dodatkowe style, jeśli potrzebne */
 </style>
