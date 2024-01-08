@@ -8,6 +8,7 @@ from flask_jwt_extended import JWTManager
 from flask_migrate import Migrate
 from flask_swagger_ui import get_swaggerui_blueprint
 from error_hanlers import register_error_handlers
+from scheduler import schedule_cleanups
 import logging
 # from flask_socketio import SocketIO
 from events import register_socket_events
@@ -100,4 +101,5 @@ if __name__ == '__main__':
     app = build_app()
     with app.app_context():
         db.create_all()
+        # schedule_cleanups()
     app.run(debug=True)
