@@ -26,7 +26,7 @@
       <h2>Leaderboard</h2>
       <ul>
         <li v-for="player in leaderboard" :key="player.id">
-          {{ player.login }} - {{ player.elo_rating }} Points
+          {{ player.name }} - {{ player.elo_rating }} Points
         </li>
       </ul>
     </div>
