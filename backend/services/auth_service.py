@@ -5,6 +5,7 @@ from werkzeug.security import check_password_hash, generate_password_hash
 from models.player_model import Player
 from exceptions import UserAlreadyExistsError, InvalidPasswordException, UserNotFoundException
 from models import db
+from flask_jwt_extended import create_access_token
 import hmac, hashlib, base64
 import logging
 from services.CognitoService import CognitoService
@@ -36,7 +37,11 @@ class AuthService:
             raise UserAlreadyExistsError("User already exists.")
 
     def login(self, username, password):
-        return self.cognito_service.authenticate_user(username, password)
+        # generate jwt token
+        player_id = self.get_player_id(username)
+        token = self.generate_jwt_token(player_id)
+
+        return self.cognito_service.authenticate_user(username, password), token
 
     def get_player_id(self, username):
         player = Player.query.filter_by(name=username).first()
@@ -44,4 +49,11 @@ class AuthService:
             return player.id
         else:
             raise UserNotFoundException("User not found.")
+
+    def generate_jwt_token(self, user_id: int) -> str:
+        try:
+            # No need for additional claims if you only want to store user_id in token
+            return create_access_token(identity=user_id)
+        except Exception as e:
+            raise Exception("Failed to generate JWT token.")
 

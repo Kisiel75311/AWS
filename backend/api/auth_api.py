@@ -46,7 +46,7 @@ def login():
         return jsonify({"error": "Username and password are required."}), 400
 
     try:
-        token = auth_service.login(username, password)
+        token = auth_service.login(username, password)[1]
         player_id = auth_service.get_player_id(username)  # Retrieve player's ID
         return jsonify({"token": token, "id": player_id}), 200
 
