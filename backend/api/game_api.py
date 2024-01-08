@@ -172,3 +172,40 @@ def get_game(game_id):
     except Exception as e:
         return jsonify({'error': str(e)}), 500
 
+
+@game_blueprint.route('/join_random', methods=['POST'])
+@jwt_required()
+def join_random_game():
+    user_id = get_jwt_identity()
+    game = GameService.join_random_game(user_id)
+    return jsonify({
+        'message': 'Joined game',
+        'gameId': game.id,
+        'boardState': GameService.get_board_as_2d_array(game.board_state),
+        'currentPlayer': game.current_player
+    })
+
+
+@game_blueprint.route('/leave', methods=['POST'])
+@jwt_required()
+def leave_game():
+    user_id = get_jwt_identity()
+    game = GameService.leave_game(user_id)
+    return jsonify({
+        'message': 'Left game',
+        'gameId': game.id,
+        'boardState': GameService.get_board_as_2d_array(game.board_state),
+        'currentPlayer': game.current_player
+    })
+
+
+@game_blueprint.route('/leaderboard', methods=['GET'])
+def get_leaderboard():
+    try:
+        players = Player.query.order_by(Player.elo.desc()).all()
+        players_data = [player.to_dict() for player in players]
+        return jsonify({
+            'players': players_data
+        })
+    except Exception as e:
+        return jsonify({'error': str(e)}), 400

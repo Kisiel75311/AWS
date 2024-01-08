@@ -5,6 +5,8 @@
     <h2>Aktualny gracz: {{ currentPlayer }}</h2>
     <button @click="startGame">Start New Game</button>
     <button @click="resetGame">Reset Game</button>
+    <button @click="joinRandomGame">Join Random Game</button>
+    <button @click="leaveGame">Leave Game</button>
     <div v-if="message" class="message">{{ message }}</div>
     <div v-if="errorMessage" class="error-message">{{ errorMessage }}</div>
 
@@ -17,6 +19,16 @@
           {{ cell === '.' ? '' : cell }}
         </button>
       </div>
+    </div>
+
+    <button @click="fetchLeaderboard">Show Leaderboard</button>
+    <div v-if="showLeaderboard" class="leaderboard">
+      <h2>Leaderboard</h2>
+      <ul>
+        <li v-for="player in leaderboard" :key="player.id">
+          {{ player.login }} - {{ player.elo }} Points
+        </li>
+      </ul>
     </div>
 
 
@@ -46,6 +58,8 @@ export default {
       errorMessage: "",
       games: [],
       jwtUserId: this.getJwtUserId(),
+      leaderboard: [],
+      showLeaderboard: false,
     };
   },
   mounted() {
@@ -135,7 +149,37 @@ export default {
     },
     isGameFull(game) {
       return this.countPlayers(game) === 2;
-    }
+    },
+    joinRandomGame() {
+      axios.post('/api/join_random', {}, {
+        headers: {"Authorization": `Bearer ${localStorage.getItem('jwtToken')}`}
+      })
+          .then(response => {
+            this.handleResponse(response);
+            this.fetchGames();
+          })
+          .catch(this.handleError);
+    },
+
+    leaveGame() {
+      axios.post('/api/leave', {}, {
+        headers: {"Authorization": `Bearer ${localStorage.getItem('jwtToken')}`}
+      })
+          .then(response => {
+            this.handleResponse(response);
+            // Additional logic to handle leaving the game
+          })
+          .catch(this.handleError);
+    },
+
+    fetchLeaderboard() {
+      axios.get('/api/leaderboard')
+          .then(response => {
+            this.leaderboard = response.data.players;
+            this.showLeaderboard = true;
+          })
+          .catch(this.handleError);
+    },
   },
   beforeUnmount() {
     if (this.pollGameStatus) {
@@ -168,6 +212,19 @@ export default {
   align-items: center;
   font-size: 2em;
   cursor: pointer;
+}
+
+.leaderboard {
+  margin-top: 20px;
+}
+
+.leaderboard ul {
+  list-style: none;
+  padding: 0;
+}
+
+.leaderboard li {
+  margin-bottom: 5px;
 }
 
 /* Dodaj tutaj dodatkowe style, jeśli potrzebne */
