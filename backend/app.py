@@ -1,5 +1,5 @@
 # backend/app.py
-import sentry_sdk
+# import sentry_sdk
 from flask import Flask, jsonify
 from flask_cors import CORS
 from models import db
