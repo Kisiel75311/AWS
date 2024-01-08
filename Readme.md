@@ -14,21 +14,12 @@ Projekt składa się z trzech głównych części:
 
 ## Funkcjonalności
 
-- Rozpoczęcie nowej gry.
-- Wykonywanie ruchów przez graczy.
-- Resetowanie gry.
-- Automatyczne wykrywanie zwycięzcy lub remisu.
 
 ## Backend (Flask)
 
-- Endpoints API do zarządzania grą.
-- Logika gry Tic-Tac-Toe.
-- Obsługa bazy danych do przechowywania stanu gry.
 
 ## Frontend (Vue.js)
 
-- Interaktywny interfejs umożliwiający grę w kółko i krzyżyk.
-- Komunikacja z backendem za pomocą Axios.
 
 ## Testowanie
 
@@ -41,24 +32,16 @@ Aby uruchomić projekt, wymagane jest zainstalowanie Docker i Docker Compose. Na
 
 ## Dostępne Endpoints API
 
-- `GET /api/start`: Rozpoczyna nową grę.
-- `POST /api/move`: Wykonuje ruch w bieżącej grze.
-- `GET /api/reset`: Resetuje grę.
+
 
 ## Struktura Projektu
 
-- `backend/`: Zawiera kod źródłowy Flask.
-- `frontend/`: Zawiera kod źródłowy Vue.js.
-- `e2e/`: Zawiera testy E2E Playwright.
-- `docker-compose.yml`: Konfiguracja Docker Compose.
 
 ## Docker Compose
 
 Konfiguracja Docker Compose obejmuje trzy usługi: `flaskapp-node`, `vueapp-node` oraz `playwright-e2e`.
 
-## Stylowanie
 
-Stylowanie komponentów gry jest realizowane za pomocą dedykowanych klas CSS w pliku `GameBoard.vue`.
 
 
 
