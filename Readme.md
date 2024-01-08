@@ -18,17 +18,23 @@ Projekt składa się z trzech głównych części:
 - Wykonywanie ruchów przez graczy.
 - Resetowanie gry.
 - Automatyczne wykrywanie zwycięzcy lub remisu.
+- Rejestracja i logowanie użytkowników.
+- Przeglądanie dostępnych gier i dołączanie do nich.
+- Zarządzanie stanem gry i interakcją użytkownika.
 
 ## Backend (Flask)
 
 - Endpoints API do zarządzania grą.
 - Logika gry Tic-Tac-Toe.
 - Obsługa bazy danych do przechowywania stanu gry.
+- Autoryzacja z użyciem JWT (JSON Web Tokens).
 
 ## Frontend (Vue.js)
 
 - Interaktywny interfejs umożliwiający grę w kółko i krzyżyk.
+- Logowanie i rejestracja użytkowników.
 - Komunikacja z backendem za pomocą Axios.
+- Wyświetlanie i aktualizacja stanu gry w czasie rzeczywistym.
 
 ## Testowanie
 
@@ -44,6 +50,15 @@ Aby uruchomić projekt, wymagane jest zainstalowanie Docker i Docker Compose. Na
 - `GET /api/start`: Rozpoczyna nową grę.
 - `POST /api/move`: Wykonuje ruch w bieżącej grze.
 - `GET /api/reset`: Resetuje grę.
+- `POST /auth/register`: Rejestracja nowego użytkownika.
+- `POST /auth/login`: Logowanie użytkownika i generowanie tokena JWT.
+- `POST /auth/logout`: Wylogowanie użytkownika (wymaga JWT).
+- `GET /api/start`: Rozpoczyna nową grę (wymaga JWT).
+- `POST /api/move`: Wykonuje ruch w bieżącej grze (wymaga JWT).
+- `GET /api/reset`: Resetuje grę (wymaga JWT).
+- `POST /api/join`: Dołącza użytkownika do istniejącej gry (wymaga JWT).
+- `GET /api/all_games`: Zwraca listę wszystkich dostępnych gier.
+- `GET /api/game/<game_id>`: Zwraca szczegóły gry (wymaga JWT).
 
 ## Struktura Projektu
 

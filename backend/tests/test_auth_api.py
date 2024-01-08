@@ -29,9 +29,11 @@ class TestAuthAPI(TestCase):
     def test_register_user(self):
         # Test registering a new user
         response = self.client.post('/auth/register', data=json.dumps({
-            'username': 'newuser',
-            'password': 'newpassword'
+            'username': '1newuser@example.com',
+            'password': 'Newpassword1_'
         }), content_type='application/json')
+        print('Response status code:', response.status_code)
+        print('Response body:', response.json)
         self.assertEqual(response.status_code, 201)
         self.assertIn("Player registered successfully.", response.json['message'])
 
@@ -42,6 +44,8 @@ class TestAuthAPI(TestCase):
         response = self.client.post('/auth/register', data=json.dumps({
             'password': 'newpassword'
         }), content_type='application/json')
+        print('Response status code:', response.status_code)
+        print('Response body:', response.json)
         self.assertEqual(response.status_code, 400)
         self.assertIn("Username and password are required.", response.json['error'])
 
@@ -56,6 +60,8 @@ class TestAuthAPI(TestCase):
             'username': 'newuser',
             'password': 'newpassword'
         }), content_type='application/json')
+        print('Response status code:', response.status_code)
+        print('Response body:', response.json)
         self.assertEqual(response.status_code, 409)
         self.assertIn("User already exists.", response.json['error'])
 
@@ -69,6 +75,8 @@ class TestAuthAPI(TestCase):
             'username': 'newuser',
             'password': 'newpassword'
         }), content_type='application/json')
+        print('Response status code:', response.status_code)
+        print('Response body:', response.json)
         self.assertEqual(response.status_code, 200)
         self.assertIn('token', response.json)
         self._login_response = response
@@ -83,6 +91,8 @@ class TestAuthAPI(TestCase):
             'username': 'newuser',
             'password': 'wrongpassword'
         }), content_type='application/json')
+        print('Response status code:', response.status_code)
+        print('Response body:', response.json)
         self.assertEqual(response.status_code, 401)
 
     @allure.story('User login nonexistent user')
@@ -92,6 +102,8 @@ class TestAuthAPI(TestCase):
             'username': 'nonexistent',
             'password': 'password'
         }), content_type='application/json')
+        print('Response status code:', response.status_code)
+        print('Response body:', response.json)
         self.assertEqual(response.status_code, 404)
 
     @allure.story('User logout')
@@ -104,6 +116,8 @@ class TestAuthAPI(TestCase):
         response = self.client.post('/auth/logout', headers={
             'Authorization': f'Bearer {token}'
         })
+        print('Response status code:', response.status_code)
+        print('Response body:', response.json)
         self.assertEqual(response.status_code, 200)
 
     @allure.story('User logout missing token')
@@ -125,12 +139,16 @@ class TestAuthAPI(TestCase):
                 'password': password
             }), content_type='application/json')
             self.assertEqual(register_response.status_code, 201)
+            print('Response status code:', register_response.status_code)
+            print('Response body:', register_response.json)
 
             # Login user
             login_response = self.client.post('/auth/login', data=json.dumps({
                 'username': username,
                 'password': password
             }), content_type='application/json')
+            print('Response status code:', login_response.status_code)
+            print('Response body:', login_response.json)
 
             self.assertEqual(login_response.status_code, 200)
             token = json.loads(login_response.data)['token']
