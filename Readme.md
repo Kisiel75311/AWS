@@ -18,17 +18,23 @@ Projekt składa się z trzech głównych części:
 - Wykonywanie ruchów przez graczy.
 - Resetowanie gry.
 - Automatyczne wykrywanie zwycięzcy lub remisu.
+- Rejestracja i logowanie użytkowników.
+- Przeglądanie dostępnych gier i dołączanie do nich.
+- Zarządzanie stanem gry i interakcją użytkownika.
 
 ## Backend (Flask)
 
 - Endpoints API do zarządzania grą.
 - Logika gry Tic-Tac-Toe.
 - Obsługa bazy danych do przechowywania stanu gry.
+- Autoryzacja z użyciem JWT (JSON Web Tokens).
 
 ## Frontend (Vue.js)
 
 - Interaktywny interfejs umożliwiający grę w kółko i krzyżyk.
+- Logowanie i rejestracja użytkowników.
 - Komunikacja z backendem za pomocą Axios.
+- Wyświetlanie i aktualizacja stanu gry w czasie rzeczywistym.
 
 ## Testowanie
 
@@ -37,13 +43,22 @@ Projekt składa się z trzech głównych części:
 
 ## Uruchomienie Projektu
 
-Aby uruchomić projekt, wymagane jest zainstalowanie Docker i Docker Compose. Następnie można użyć polecenia `docker-compose up` do uruchomienia wszystkich usług.
+Aby uruchomić projekt, wymagane jest zainstalowanie Docker i Docker Compose. Następnie można użyć polecenia `docker-compose up --build` do uruchomienia wszystkich usług.
 
 ## Dostępne Endpoints API
 
 - `GET /api/start`: Rozpoczyna nową grę.
 - `POST /api/move`: Wykonuje ruch w bieżącej grze.
 - `GET /api/reset`: Resetuje grę.
+- `POST /auth/register`: Rejestracja nowego użytkownika.
+- `POST /auth/login`: Logowanie użytkownika i generowanie tokena JWT.
+- `POST /auth/logout`: Wylogowanie użytkownika (wymaga JWT).
+- `GET /api/start`: Rozpoczyna nową grę (wymaga JWT).
+- `POST /api/move`: Wykonuje ruch w bieżącej grze (wymaga JWT).
+- `GET /api/reset`: Resetuje grę (wymaga JWT).
+- `POST /api/join`: Dołącza użytkownika do istniejącej gry (wymaga JWT).
+- `GET /api/all_games`: Zwraca listę wszystkich dostępnych gier.
+- `GET /api/game/<game_id>`: Zwraca szczegóły gry (wymaga JWT).
 
 ## Struktura Projektu
 
@@ -56,9 +71,6 @@ Aby uruchomić projekt, wymagane jest zainstalowanie Docker i Docker Compose. Na
 
 Konfiguracja Docker Compose obejmuje trzy usługi: `flaskapp-node`, `vueapp-node` oraz `playwright-e2e`.
 
-## Stylowanie
-
-Stylowanie komponentów gry jest realizowane za pomocą dedykowanych klas CSS w pliku `GameBoard.vue`.
 
 
 
