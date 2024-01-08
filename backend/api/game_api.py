@@ -202,7 +202,7 @@ def leave_game():
 @game_blueprint.route('/leaderboard', methods=['GET'])
 def get_leaderboard():
     try:
-        players = Player.query.order_by(Player.elo.desc()).all()
+        players = Player.query.order_by(Player.elo_rating.desc()).all()
         players_data = [player.to_dict() for player in players]
         return jsonify({
             'players': players_data
