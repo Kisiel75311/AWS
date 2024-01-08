@@ -1,17 +1,25 @@
 # backedn/auth_api.py
 from flask import Blueprint, request, jsonify, current_app
 from services.auth_service import AuthService
+from services.CognitoService import CognitoService
 from exceptions import UserNotFoundException, InvalidPasswordException, UserAlreadyExistsError
 from flask_jwt_extended import jwt_required, get_jwt_identity
 from utils.common_utils import standard_response
 
 auth_blueprint = Blueprint('auth', __name__)
-auth_service = AuthService()
+# cognito_service = CognitoService(
+#     current_app.config['AWS_DEFAULT_REGION'],
+#     current_app.config['AWS_COGNITO_USER_POOL_CLIENT_ID'],
+#     current_app.config['AWS_COGNITO_USER_POOL_CLIENT_SECRET']
+# )
+# auth_service = AuthService(cognito_service)
 
+# auth_service = current_app.auth_service
 
 @auth_blueprint.route('/register', methods=['POST'])
 # @standard_response
 def register():
+    auth_service = current_app.auth_service
     data = request.get_json()
     username = data.get('username')
     password = data.get('password')
@@ -29,6 +37,7 @@ def register():
 @auth_blueprint.route('/login', methods=['POST'])
 # @standard_response
 def login():
+    auth_service = current_app.auth_service
     data = request.get_json()
     username = data.get('username')
     password = data.get('password')

@@ -6,94 +6,42 @@ from models.player_model import Player
 from exceptions import UserAlreadyExistsError, InvalidPasswordException, UserNotFoundException
 from models import db
 import hmac, hashlib, base64
+import logging
+from services.CognitoService import CognitoService
 
 
 class AuthService:
-    """Provides authentication-related functionality."""
+    def __init__(self, cognito_service):
+        self.cognito_service = cognito_service
 
-    def __init__(self):
-        """Initializes the AuthService instance."""
-        self.cognito_client = boto3.client('cognito-idp')
+    def register(self, username, password):
+        logging.info(f"Registering user: {username}, password: {password}")
+        if not password:
+            raise ValueError("Password cannot be empty")
 
-    def cognito_generate_jwt_token(self, username: str, password: str) -> str:
-        """Uses AWS Cognito to authenticate the user and get JWT token."""
-        try:
-            response = self.cognito_client.initiate_auth(
-                ClientId=current_app.config['AWS_COGNITO_USER_POOL_CLIENT_ID'],
-                AuthFlow='USER_PASSWORD_AUTH',
-                AuthParameters={
-                    'USERNAME': username,
-                    'PASSWORD': password
-                }
-            )
-            return response['AuthenticationResult']['IdToken']
-        except self.cognito_client.exceptions.NotAuthorizedException:
-            raise InvalidPasswordException("Invalid username or password.")
-        except self.cognito_client.exceptions.UserNotFoundException:
-            raise UserNotFoundException("User not found.")
-        except Exception as e:
-            raise Exception(f"Failed to authenticate with Cognito: {str(e)}")
+        if self.cognito_service.sign_up_user(username, password):
+            try:
+                hashed_password = generate_password_hash(password)
+                new_player = Player(name=username, password=hashed_password)
+                db.session.add(new_player)
+                db.session.commit()
+                logging.info(f"User {username} registered successfully.")
+                return True
+            except IntegrityError as e:
+                db.session.rollback()
+                logging.error(f"Error registering user {username}: {e}")
+                raise
+        else:
+            logging.error(f"User {username} already exists.")
+            raise UserAlreadyExistsError("User already exists.")
 
-    def register(self, username: str, password: str):
-        """Registers a new user in the local database and Cognito."""
-        # Check if the user already exists in the local database
-        existing_user = Player.query.filter_by(name=username).first()
-        if existing_user:
-            raise UserAlreadyExistsError("User already exists in local database.")
+    def login(self, username, password):
+        return self.cognito_service.authenticate_user(username, password)
 
-        # Register user in Cognito
-        try:
-            secret_hash = calculate_secret_hash(username,
-                                                current_app.config['AWS_COGNITO_USER_POOL_CLIENT_ID'],
-                                                current_app.config['AWS_COGNITO_USER_POOL_CLIENT_SECRET'])
-
-            self.cognito_client.sign_up(
-                ClientId=current_app.config['AWS_COGNITO_USER_POOL_CLIENT_ID'],
-                SecretHash=secret_hash,  # Poprawiona nazwa parametru
-                Username=username,
-                Password=password,
-                UserAttributes=[
-                    {
-                        'Name': 'email',
-                        'Value': username  # Assuming username is the email
-                    },
-                ]
-            )
-        except self.cognito_client.exceptions.UsernameExistsException as e:
-            raise UserAlreadyExistsError("User already exists in Cognito.")
-
-        # Add user to local database
-        try:
-            hashed_password = generate_password_hash(password)  # Generuj hash hasła
-            new_player = Player(name=username, password=hashed_password)
-            db.session.add(new_player)
-            db.session.commit()
-        except IntegrityError as e:
-            db.session.rollback()
-            raise  # re-raise the exception
-
-        return "Player registered successfully."
-
-    def login(self, username: str, password: str) -> str:
-        """Logs in a user using Cognito."""
-        return self.cognito_generate_jwt_token(username, password)
-
-    def logout(self, token: str):
-        """Logs out a user."""
-        return "Player logged out successfully."
-
-    def get_player_id(self, username: str) -> int:
-        """Retrieves the player's ID based on the username."""
+    def get_player_id(self, username):
         player = Player.query.filter_by(name=username).first()
         if player:
             return player.id
         else:
             raise UserNotFoundException("User not found.")
 
-
-def calculate_secret_hash(username, client_id, client_secret):
-    message = username + client_id
-    dig = hmac.new(str(client_secret).encode('utf-8'),
-                   msg=message.encode('utf-8'),
-                   digestmod=hashlib.sha256).digest()
-    return base64.b64encode(dig).decode()

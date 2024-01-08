@@ -2,6 +2,9 @@
 # import sentry_sdk
 from flask import Flask, jsonify
 from flask_cors import CORS
+
+from services.CognitoService import CognitoService
+from services.auth_service import AuthService
 from models import db
 from config import Config
 from flask_jwt_extended import JWTManager
@@ -95,6 +98,17 @@ def build_app(testing=False):
         region_name=app.config['AWS_DEFAULT_REGION']
     )
 
+    # Inicjalizacja CognitoService i AuthService z konfiguracjami
+    cognito_service = CognitoService(
+        app.config['AWS_DEFAULT_REGION'],
+        app.config['AWS_COGNITO_USER_POOL_CLIENT_ID'],
+        app.config['AWS_COGNITO_USER_POOL_CLIENT_SECRET']
+    )
+    auth_service = AuthService(cognito_service)
+
+    # Zapisanie instancji AuthService w aplikacji do późniejszego użycia
+    app.auth_service = auth_service
+
     # register_socket_events(socketio)
     return app
 
@@ -108,7 +122,7 @@ def register_blueprints(app):
 if __name__ == '__main__':
     app = build_app()
     with app.app_context():
-
+        logging.basicConfig(level=logging.INFO)
         db.create_all()
         # schedule_cleanups()
     app.run(debug=True)
