@@ -64,6 +64,7 @@ export default {
   },
   mounted() {
     this.fetchGames();
+    this.fetchLeaderboard();
     this.pollGameStatus = setInterval(this.fetchCurrentGame, 2000);
   },
   methods: {
