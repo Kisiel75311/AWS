@@ -44,7 +44,7 @@ def build_app(testing=False):
         app.config['WTF_CSRF_ENABLED'] = False  # Disable CSRF form validation, typically for testing
         app.secret_key = 'BAD_SECRET_KEY'  # Use a secure, constant key in production
     else:
-        app.config["SQLALCHEMY_DATABASE_URI"] = "postgresql://postgres:admin123@database-1.chkwsw6g6zjj.us-east-1.rds.amazonaws.com:5432/aws"
+        app.config["SQLALCHEMY_DATABASE_URI"] = "postgresql://postgres:admin123@database-1.c9oisuqoseo1.us-east-1.rds.amazonaws.com:5432/aws"
         app.secret_key = 'BAD_SECRET_KEY'  # Use a secure, constant key in production
         app.config.update(SESSION_COOKIE_SAMESITE="None", SESSION_COOKIE_SECURE=True)
 
